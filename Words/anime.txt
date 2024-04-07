@@ -7,6 +7,7 @@
 Hi10p_1080p => 1080p x264
 Ma10p_1080p => 1080p x265
 HEVC Main10P => x265
+\[MKV\/TVRip\] => [1080p.H264.AAC]
 
 #海贼王第22季（观众版本，仅用于追最新季的时候添加）
 One.Piece.S01(?=.*ADWeb) => One.Piece.1999.S22
