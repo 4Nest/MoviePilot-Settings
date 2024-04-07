@@ -1,0 +1,56 @@
+#辅助识别修正词
+(\b[5-9]\b|\b[1-9][0-9]\b) \[ =>  E\1 [
+(?<=[\[【].*?(?:组|組|sub|S(?:UB|ub|tudio)|Raw(?:|s)|社)[\]】])(?:(?:\[|【|★|)\d{1,2}月新番(?:\]|】|★|)|)[\[【](.*?)[\]】] => \1
+^[\W_](.*?(?:组|組|屋|社|動漫|Lab|sub|S(?:UB|ub|tudio)|Raw(?:|s)|Production))[\W_]+(?:[\W_]+\d{1,2}(?:月(?:新|)番|国漫)[\W_]+|)[\[【](.*?)[\]】] => [\1] \2 
+\(([^\(\)\s]+)\)\.(mp4|mkv) => 
+[【\[](Fin|END)[】\]]|(?:|\s|\s-\s)(Fin|END)(?=\])|(?<=\d{1,2})(Fin|END) => 
+Hi10p_1080p => 1080p x264
+Ma10p_1080p => 1080p x265
+HEVC Main10P => x265
+
+#海贼王第22季（观众版本，仅用于追最新季的时候添加）
+One.Piece.S01(?=.*ADWeb) => One.Piece.1999.S22
+#海贼王【枫雪】
+OPFans枫雪动漫 => OPFansMaplesnow
+one_piece => One Piece 1999
+One Piece 1999\]\[(?=\b(89[0-1]|88[0-9]|87[8-9])\b) => One Piece 1999][S20E
+One Piece 1999\]\[(?=\b(108[0-5]|10[0-7][0-9]|9[0-9][0-9]|89[2-9])\b) => One Piece 1999][S21E
+One Piece 1999\]\[(?=\b(1[1-9][0-9][0-9]|109[0-9]|108[6-9])\b) => One Piece 1999][S22E
+
+#名侦探柯南 【银色子弹 BT】
+(?<=SBSUB.*DR.*?)- => part
+\[CHS\_CHT\_JP\]\(\w{8}\)
+\[CHT\_JP\]\(\w{8}\)
+\[CHS\_JP\]\(\w{8}\)
+\[SBSUB\]\[CONAN\]\[DR => [银色子弹字幕组][名侦探柯南][S01E
+\[SBSUB\]\[CONAN\]\[ => [银色子弹字幕组][名侦探柯南][S01E
+
+#斗罗大陆2：绝世唐门
+Soul.Land.S02 => Soul Land II: The Unrivaled Tang 
+斗罗大陆.Soul.Land.S02 => Soul Land II: The Unrivaled Tang
+
+#宝可梦 地平线(枫叶字幕组)
+\[FYSub\]\[Pocket\_Monsters\_Horizontes\] => 宝可梦 地平线
+
+#吞噬星空
+(?<=Swallowed.Star.S04.*?)2023 => 2020
+Swallowed.Star.S04 => Swallowed.Star.S01 && S01 <> 2020 >> EP+85
+Swallowed.Star.S03 => Swallowed.Star.S01
+Swallowed.Star.S02 => Swallowed.Star.S01
+
+#百炼成神
+Apotheosis.S02 => Apotheosis.S01 && S01 <> 2022 >> EP+52
+(?<=Apotheosis.S02.*?)2023 => 2022
+
+#凡人修仙传
+(?<=A.Record.Of.Mortals.Journey.To.Immortality.*?)2023 => 2020
+
+#诛仙第二季【ADWeb】
+Jade.Dynasty.S01(?=.*ADWeb) => Jade.Dynasty.S02 && S02 <> 2024 >> EP-26
+
+#摇曳露营
+(?<=Yuru.Camp.S03.*?)2024 => 2018
+
+#魔法科高中的劣等生 第三季
+(?<=Mahouka.Koukou.no.Rettousei.*?)2024 => 2014
+
