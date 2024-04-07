@@ -1,0 +1,38 @@
+#猎冰
+The.Hunter.S01(?=.*(?:2024)) => 猎冰.The.Hunter.2024.S01
+
+#天龙八部
+Heaven.Dragon.the.Eighth.Episode.2003 => 天龙八部 (2003)
+
+#大王别慌张
+My Dear King Theatre => 大王别慌张
+
+#超异能族
+Moving.S01 => 超异能族 S01
+
+#仙剑奇侠传三
+仙剑奇侠传三.Chinese.Paladin.3.S03 => 仙剑奇侠传三.Chinese.Paladin.3.S01
+
+#婚后事
+Happily.Ever.After.2024 => 婚后事
+
+#南来北往
+Always.on.the.Move=>南来北往
+
+#黑镜
+Black Mirror 2011-2019 => 黑镜S01-S05
+
+#智能时代
+Zhi Neng Shi Dai S01 2023 => 智能时代  第一季
+
+#蜘蛛夫人：超感觉醒
+Madame.Web => 蜘蛛夫人：超感觉醒
+
+#三体（2024）
+3.Body.Problem.2024 => 三体.2024
+
+#请回答1988
+Reply 1988 => 请回答1988
+
+#天机算
+Tin.Gei.Suen.2007 => {[tmdbid=3125;type=tv]}
