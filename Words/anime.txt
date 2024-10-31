@@ -1,57 +1,57 @@
-#辅助识别修正词
-(\b[5-9]\b|\b[1-9][0-9]\b) \[ =>  E\1 [
-(?<=[\[【].*?(?:组|組|sub|S(?:UB|ub|tudio)|Raw(?:|s)|社)[\]】])(?:(?:\[|【|★|)\d{1,2}月新番(?:\]|】|★|)|)[\[【](.*?)[\]】] => \1
-^[\W_](.*?(?:组|組|屋|社|動漫|Lab|sub|S(?:UB|ub|tudio)|Raw(?:|s)|Production))[\W_]+(?:[\W_]+\d{1,2}(?:月(?:新|)番|国漫)[\W_]+|)[\[【](.*?)[\]】] => [\1] \2 
-\(([^\(\)\s]+)\)\.(mp4|mkv) => 
-[【\[](Fin|END)[】\]]|(?:|\s|\s-\s)(Fin|END)(?=\])|(?<=\d{1,2})(Fin|END) => 
-Hi10p_1080p => 1080p x264
-Ma10p_1080p => 1080p x265
-HEVC Main10P => x265
-\[MKV\/TVRip\] => [1080p.H264.AAC]
-
-#海贼王第22季（观众版本，仅用于追最新季的时候添加）
-One.Piece.S01(?=.*ADWeb) => One.Piece.1999.S22
-#海贼王【枫雪】
-OPFans枫雪动漫 => OPFansMaplesnow
-one_piece => One Piece 1999
-One Piece 1999\]\[(?=\b(89[0-1]|88[0-9]|87[8-9])\b) => One Piece 1999][S20E
-One Piece 1999\]\[(?=\b(108[0-5]|10[0-7][0-9]|9[0-9][0-9]|89[2-9])\b) => One Piece 1999][S21E
-One Piece 1999\]\[(?=\b(1[1-9][0-9][0-9]|109[0-9]|108[6-9])\b) => One Piece 1999][S22E
-
-#名侦探柯南 【银色子弹 BT】
+\[Movie\]
+episode\.\d{1}
+\.(第\d{1,2}集)\. => \1
+(?i)Season( *)0?(\d+) => S\2
 (?<=SBSUB.*DR.*?)- => part
 \[CHS\_CHT\_JP\]\(\w{8}\)
 \[CHT\_JP\]\(\w{8}\)
 \[CHS\_JP\]\(\w{8}\)
 \[SBSUB\]\[CONAN\]\[DR => [银色子弹字幕组][名侦探柯南][S01E
 \[SBSUB\]\[CONAN\]\[ => [银色子弹字幕组][名侦探柯南][S01E
+(?<=VCB-Studio.*?)2nd Season => S02
+(?<=VCB-Studio.*?)IV => S04
+(?<=VCB-Studio.*?)III => S03
+(?<=VCB-Studio.*?)II => S02
+[【\[](Fin|END)[】\]]|(?:|\s|\s-\s)(Fin|END)(?=\])|(?<=\d{1,2})_?(Fin|END)
+(?<=[\[【].*?(?:组|組|sub|S(?:UB|ub|tudio)|Raw(?:|s)|社)[\]】])(?:(?:\[|【|★|)\d{1,2}月新番(?:\]|】|★|)|)[\[【](.*?)[\]】] => \1
+(?<=[\W_])(CR|Baha|KKTV|Abema|B-Global|Sentai|MyVideo|AMZN|KKTV|friDay|DSNP|LINETV|NF|Viu)(?=[\W_]) => -\1
+(?i)(CHS|GB|SC)(&|_|＆|\x20)(CHT|BIG5|TC)(&|_|＆|\x20)JA?PN? => 简繁日内封
+(?i)(CHS|GB|SC)_JA?PN?(&|＆|\x20)(CHT|BIG5|TC)_JA?PN? => 简繁日内封
+(?i)(CHS|GB|SC)(&|＆|\x20)(CHT|BIG5|TC) => 简繁内封
+(?i)(CHS|GB|SC)(_|&|＆|\x20)JA?PN? => 简日双语
+(?i)\[JA?PN?(_|&|＆|\x20)?(SC|CHS|GB)\] => [简日双语]
+(.*)(VCB-Studio)(.*)(Ma10p_?|Hi10p_?)(.*) => \1\2\3\5
+S(eason)? ?0?([2-9]) *\[(OVA|OAD)0?\(?(\d)?\)?\] => S0E\2\4
+(S(eason)? ?0?1 *)?\[(OVA|OAD)(\d+)?\] => S0E\4
+(S(eason)? ?\d+)? *\[\d+\(?(OVA|OAD)\)?\] => S0
+(?<=[\W_])4(?:k|K)(?=[\W_]) => 2160p
+(?i)\bSBSUB\b => 银色子弹字幕组
+(?i)\bNekomoe kisstan\b => 喵萌奶茶屋
+(?i)\bOPFansMaplesnow\b => OPFans枫雪动漫
+(?i)\bSakurato\b|樱都字幕组|桜都字幕组|桜都 => 桜都字幕组
+(?i)\bHaruhana\b => ❀拨雪寻春❀
+(?<=[\W_])CR(?=[\W_]) => Crunchyroll
+(?<=[\W_])NF(?=[\W_]) => Netflix
+(?<=[\W_])AMZN(?=[\W_]) => Amazon
+(?<=[\W_])((H?MAX)|ATVP)(?=[\W_]) => -\1
+(?<=[\W_])ATVP(?=[\W_]) => AppleTV+
+(?<=[\W_])DSNP(?=[\W_]) => Disney+
+(?<=(1080p|2160p)\.)Max\. => -MAX.
+(?<=(1080p|2160p)\.)iT\. => -iTunes.
+(?<!-)(Disney\+|playWEB|Crunchyroll|Netflix|Amazon|AppleTV\+) => -\1
 
-#斗罗大陆2：绝世唐门
-Soul.Land.S02 => Soul Land II: The Unrivaled Tang 
-斗罗大陆.Soul.Land.S02 => Soul Land II: The Unrivaled Tang
-
-#宝可梦 地平线(枫叶字幕组)
-\[FYSub\]\[Pocket\_Monsters\_Horizontes\] => 宝可梦 地平线
-
-#吞噬星空
+(?<=Apotheosis.S02.*?)2023 => 2022
+Apotheosis.S02 => Apotheosis.S01 && S01 <> 2022 >> EP+52
+Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S03 => Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S01 && S01 <> 2024 >> EP+50
+Ranma.S01(?=.*2024) => Ranma.½.S01
+ShangriLa.Frontier.S02E => ShangriLa.Frontier.S01E && S01 <> 2024 >> EP+25
+Oshi no Ko => Oshi no Ko 2023
+斗破苍穹.年番.Fights.Break.Sphere.S05 => 斗破苍穹.Fights.Break.Sphere.S05
+(?<=Swallowed.Star.S05.*?)2024 => 2020
 (?<=Swallowed.Star.S04.*?)2023 => 2020
+(?<=Swallowed.Star.S03.*?)2022 => 2020
+(?<=Swallowed.Star.S02.*?)2021 => 2020
+Swallowed.Star.S05(?=.*ADWeb) => Swallowed.Star.S01
 Swallowed.Star.S04 => Swallowed.Star.S01 && S01 <> 2020 >> EP+85
 Swallowed.Star.S03 => Swallowed.Star.S01
 Swallowed.Star.S02 => Swallowed.Star.S01
-
-#百炼成神
-Apotheosis.S02 => Apotheosis.S01 && S01 <> 2022 >> EP+52
-(?<=Apotheosis.S02.*?)2023 => 2022
-
-#凡人修仙传
-(?<=A.Record.Of.Mortals.Journey.To.Immortality.*?)2023 => 2020
-
-#诛仙第二季【ADWeb】
-Jade.Dynasty.S01(?=.*ADWeb) => Jade.Dynasty.S02 && S02 <> 2024 >> EP-26
-
-#摇曳露营
-(?<=Yuru.Camp.S03.*?)2024 => 2018
-
-#魔法科高中的劣等生 第三季
-(?<=Mahouka.Koukou.no.Rettousei.*?)2024 => 2014
-
