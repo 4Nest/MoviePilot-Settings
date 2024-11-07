@@ -78,7 +78,7 @@ tv:
 > 
 > **媒体库目录**即为**媒体服务器**挂载的文件目录     参考图中**link**文件夹
 
-####目录参考（图中为 方案二）
+**目录参考（图中为 方案二）**
 
 ![dir.png](https://raw.githubusercontent.com/4Nest/MoviePilot-Settings/refs/heads/main/V2/src/dir.png)
 
@@ -134,7 +134,7 @@ tv:
 
 ### 站点同步
 
-###### 安装CookieCloud
+**安装CookieCloud**
 
 安装CookieCloud浏览器插件
 
@@ -157,7 +157,8 @@ services:
 
 [easychen/CookieCloud · GitHub](https://github.com/easychen/CookieCloud/blob/master/README_cn.md)
 
-###### 自建
+
+**自建**
 
 取消勾选本地服务器
 
@@ -167,11 +168,13 @@ services:
 
 端对端加密密码：客户端生成
 
-###### 内置
+
+**内置**
 
 勾选本地服务器
 
-###### 浏览器插件设置
+
+**浏览器插件设置**
 
 服务器地址：http://domain/cookiecloud
 
@@ -182,6 +185,8 @@ services:
 **设置完成后保存同步**
 
 **到MP 设定 - 服务 - 同步CookieCloud站点 执行**
+
+
 
 ### 规则
 
