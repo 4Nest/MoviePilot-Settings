@@ -65,3 +65,5 @@ Swallowed.Star.S02 => Swallowed.Star.S01
 #一念永恒 第三季
 (?<=A.Will.Eternal.S03.*?)2024 => 2020
 A.Will.Eternal.S03E => A.Will.Eternal.S01E && S01E <> 2020 >> EP+106
+(?<=Yi.Nian.Yong.Heng.S03.*?)2024 => 2020
+Yi.Nian.Yong.Heng.S03E => Yi.Nian.Yong.Heng.S01E && S01E <> 2020 >> EP+106
