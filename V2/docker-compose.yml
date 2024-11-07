@@ -15,9 +15,9 @@ services:
               protocol: tcp
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro                     #docker映射
-            - /mnt/appdata/moviepilot/config:/config                           #配置保存路径
-            - /mnt/appdata/moviepilot/core:/moviepilot/.cache/ms-playwright    #浏览器内核保存路径 
-            - /mnt/media:/media                                                #媒体文件路径
+            - /mnt/user/appdata/moviepilot/config:/config                      #配置保存路径
+            - /mnt/user/appdata/moviepilot/core:/moviepilot/.cache/ms-playwright         #浏览器内核保存路径 
+            - /mnt/user/media:/media                                           #媒体文件路径
             #- /volume2/movie:/movie                                           #根据需要添加你的媒体目录
             #- /volume3/serie:/serie                                           #根据需要添加你的媒体目录
             #- /volume4/anime:/anime                                           #根据需要添加你的媒体目录
