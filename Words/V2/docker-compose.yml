@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+
+    moviepilot:
+        stdin_open: true
+        tty: true
+        container_name: moviepilot-v2
+        hostname: moviepilot-v2
+        networks:
+            - moviepilot
+        ports:
+            - target: 3000
+              published: 3000
+              protocol: tcp
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro                     #docker映射
+            - /mnt/appdata/moviepilot/config:/config                           #配置保存路径
+            - /mnt/appdata/moviepilot/core:/moviepilot/.cache/ms-playwright    #浏览器内核保存路径 
+            - /mnt/media:/media                                                #媒体文件路径
+            #- /volume2/movie:/movie                                           #根据需要添加你的媒体目录
+            #- /volume3/serie:/serie                                           #根据需要添加你的媒体目录
+            #- /volume4/anime:/anime                                           #根据需要添加你的媒体目录
+            #- /volume4/video:/video                                           #根据需要添加你的媒体目录
+        environment:
+            - NGINX_PORT=3000                                                  #WEB服务端口
+            - PORT=3001                                                        #API服务端口
+            - PUID=0                                                           #运行程序用户的uid
+            - PGID=0                                                           #运行程序用户的gid
+            - UMASK=022                                                        #掩码权限
+            - TZ=Asia/Shanghai                                                 #时区   
+            - PROXY_HOST=http://192.168.2.5:7890                               #填写你自己的代理地址
+            - MOVIEPILOT_AUTO_UPDATE=release                                   #重启时自动更新
+            - AUTH_SITE=iyuu                                                   #认证站点
+            - IYUU_SIGN=IYUU00000                                              #修改为自己的iyuu令牌
+            - SUPERUSER=admin                                                  #修改为你自己的用户名
+            - SUPERPASS=admin12345                                             #仅作为记录 无实际作用
+            #- API_TOKEN=1234567890123456                                      #自定义16位以上token，不设置随机生成
+            - GITHUB_TOKEN=ghp_xxxxx                                           #修改为自己的GITHUB_TOKEN
+networks:
+  moviepilot:
+    name: moviepilot
