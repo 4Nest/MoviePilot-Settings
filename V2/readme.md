@@ -253,7 +253,7 @@ services:
 #### 自定义识别词
 
 ```
-[Movie\]
+\[Movie\]
 episode\.\d{1}
 \.(第\d{1,2}集)\. => \1
 (?i)Season( *)0?(\d+) => S\2
