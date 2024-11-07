@@ -37,6 +37,8 @@ services:
             - SUPERPASS=admin12345                                             #仅作为记录 无实际作用
             #- API_TOKEN=1234567890123456                                      #自定义16位以上token，不设置随机生成
             - GITHUB_TOKEN=ghp_xxxxx                                           #修改为自己的GITHUB_TOKEN
+        restart: always
+        image: jxxghp/moviepilot-v2:latest
 networks:
   moviepilot:
     name: moviepilot
