@@ -39,7 +39,7 @@ S(eason)? ?0?([2-9]) *\[(OVA|OAD)0?\(?(\d)?\)?\] => S0E\2\4
 (?<=(1080p|2160p)\.)Max\. => -MAX.
 (?<=(1080p|2160p)\.)iT\. => -iTunes.
 (?<!-)(Disney\+|playWEB|Crunchyroll|Netflix|Amazon|AppleTV\+) => -\1
-
+#斗破苍穹
 斗破苍穹.年番.Fights.Break.Sphere.S05 => 斗破苍穹.Fights.Break.Sphere.S05
 #百炼成神
 (?<=Apotheosis.S02.*?)2023 => 2022
