@@ -34,9 +34,8 @@ services:
             - AUTH_SITE=iyuu                                                   #认证站点
             - IYUU_SIGN=IYUU00000                                              #修改为自己的iyuu令牌
             - SUPERUSER=admin                                                  #修改为你自己的用户名
-            - SUPERPASS=admin12345                                             #仅作为记录 无实际作用
             #- API_TOKEN=1234567890123456                                      #自定义16位以上token，不设置随机生成
-            - GITHUB_TOKEN=ghp_xxxxx                                           #修改为自己的GITHUB_TOKEN
+            #- GITHUB_TOKEN=ghp_xxxxx                                          #修改为自己的GITHUB_TOKEN
         restart: always
         image: jxxghp/moviepilot-v2:latest
 networks:
