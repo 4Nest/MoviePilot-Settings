@@ -252,52 +252,7 @@ services:
 
 #### 自定义识别词
 
-```
-\[Movie\]
-episode\.\d{1}
-\.(第\d{1,2}集)\. => \1
-(?i)Season( *)0?(\d+) => S\2
-(?<=SBSUB.*DR.*?)- => part
-\[CHS\_CHT\_JP\]\(\w{8}\)
-\[CHT\_JP\]\(\w{8}\)
-\[CHS\_JP\]\(\w{8}\)
-chs&jpn => jpsc
-cht&jpn => jptc
-\[SBSUB\]\[CONAN\]\[DR => [银色子弹字幕组][名侦探柯南][S01E
-\[SBSUB\]\[CONAN\]\[ => [银色子弹字幕组][名侦探柯南][S01E
-(?<=VCB-Studio.*?)2nd Season => S02
-(?<=VCB-Studio.*?)IV => S04
-(?<=VCB-Studio.*?)III => S03
-(?<=VCB-Studio.*?)II => S02
-[【\[](Fin|END)[】\]]|(?:|\s|\s-\s)(Fin|END)(?=\])|(?<=\d{1,2})_?(Fin|END)
-(?<=[\[【].*?(?:组|組|sub|S(?:UB|ub|tudio)|Raw(?:|s)|社)[\]】])(?:(?:\[|【|★|)\d{1,2}月新番(?:\]|】|★|)|)[\[【](.*?)[\]】] => \1
-(?<=[\W_])(CR|Baha|KKTV|Abema|B-Global|Sentai|MyVideo|AMZN|KKTV|friDay|DSNP|LINETV|NF|Viu)(?=[\W_]) => -\1
-(?i)(CHS|GB|SC)(&|_|＆|\x20)(CHT|BIG5|TC)(&|_|＆|\x20)JA?PN? => 简繁日内封
-(?i)(CHS|GB|SC)_JA?PN?(&|＆|\x20)(CHT|BIG5|TC)_JA?PN? => 简繁日内封
-(?i)(CHS|GB|SC)(&|＆|\x20)(CHT|BIG5|TC) => 简繁内封
-(?i)(CHS|GB|SC)(_|&|＆|\x20)JA?PN? => 简日双语
-(?i)\[JA?PN?(_|&|＆|\x20)?(SC|CHS|GB)\] => [简日双语]
-(.*)(VCB-Studio)(.*)(Ma10p_?|Hi10p_?)(.*) => \1\2\3\5
-S(eason)? ?0?([2-9]) *\[(OVA|OAD)0?\(?(\d)?\)?\] => S0E\2\4
-(S(eason)? ?0?1 *)?\[(OVA|OAD)(\d+)?\] => S0E\4
-(S(eason)? ?\d+)? *\[\d+\(?(OVA|OAD)\)?\] => S0
-(?<=[\W_])4(?:k|K)(?=[\W_]) => 2160p
-(?i)\bSBSUB\b => 银色子弹字幕组
-(?i)\bNekomoe kisstan\b => 喵萌奶茶屋
-(?i)\bOPFansMaplesnow\b => OPFans枫雪动漫
-(?i)\bSakurato\b|樱都字幕组|桜都字幕组|桜都 => 桜都字幕组
-(?i)\bHaruhana\b => ❀拨雪寻春❀
-(?<=[\W_])CR(?=[\W_]) => Crunchyroll
-(?<=[\W_])NF(?=[\W_]) => Netflix
-(?<=[\W_])AMZN(?=[\W_]) => Amazon
-(?<=[\W_])((H?MAX)|ATVP)(?=[\W_]) => -\1
-(?<=[\W_])ATVP(?=[\W_]) => AppleTV+
-(?<=[\W_])DSNP(?=[\W_]) => Disney+
-(?<=(1080p|2160p)\.)Max\. => -MAX.
-(?<=(1080p|2160p)\.)iT\. => -iTunes.
-(?<!-)(Disney\+|playWEB|Crunchyroll|Netflix|Amazon|AppleTV\+) => -\1
-
-```
+[个人词表](https://github.com/4Nest/MoviePilot-Settings/blob/main/Words/anime.txt)
 
 #### 自定义制作组/字幕组
 
