@@ -6,12 +6,14 @@ episode\.\d{1}
 \[CHS\_CHT\_JP\]\(\w{8}\)
 \[CHT\_JP\]\(\w{8}\)
 \[CHS\_JP\]\(\w{8}\)
+chs&jpn => jpsc
+cht&jpn => jptc
 \[SBSUB\]\[CONAN\]\[DR => [银色子弹字幕组][名侦探柯南][S01E
 \[SBSUB\]\[CONAN\]\[ => [银色子弹字幕组][名侦探柯南][S01E
-(?<=VCB-Studio.*?)2nd Season => S02
-(?<=VCB-Studio.*?)IV => S04
-(?<=VCB-Studio.*?)III => S03
-(?<=VCB-Studio.*?)II => S02
+(?<=(VCB-Studio|ANi).*?)2nd Season => S02
+(?<=(VCB-Studio|ANi).*?)IV => S04
+(?<=(VCB-Studio|ANi).*?)III => S03
+(?<=(VCB-Studio|ANi).*?)II => S02
 [【\[](Fin|END)[】\]]|(?:|\s|\s-\s)(Fin|END)(?=\])|(?<=\d{1,2})_?(Fin|END)
 (?<=[\[【].*?(?:组|組|sub|S(?:UB|ub|tudio)|Raw(?:|s)|社)[\]】])(?:(?:\[|【|★|)\d{1,2}月新番(?:\]|】|★|)|)[\[【](.*?)[\]】] => \1
 (?<=[\W_])(CR|Baha|KKTV|Abema|B-Global|Sentai|MyVideo|AMZN|KKTV|friDay|DSNP|LINETV|NF|Viu)(?=[\W_]) => -\1
@@ -39,7 +41,6 @@ S(eason)? ?0?([2-9]) *\[(OVA|OAD)0?\(?(\d)?\)?\] => S0E\2\4
 (?<=(1080p|2160p)\.)Max\. => -MAX.
 (?<=(1080p|2160p)\.)iT\. => -iTunes.
 (?<!-)(Disney\+|playWEB|Crunchyroll|Netflix|Amazon|AppleTV\+) => -\1
-(?<=S\d{2}E\d{2}).+(?=(2160|1080)p.+NTb) =>  
 
 #斗破苍穹
 斗破苍穹.年番.Fights.Break.Sphere.S05 => 斗破苍穹.Fights.Break.Sphere.S05
