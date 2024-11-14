@@ -335,6 +335,10 @@ WiKi.sample
 ## 如何自己写识别词
 
 ```
+正则测试 https://www.runoob.com/regexp/regexp-tutorial.html
+```
+
+```
 一念永恒.Yi.Nian.Yong.Heng.S03E10.2024.2160p.WEB-DL.H265.DDP2.0
 ```
 
@@ -437,6 +441,5 @@ Yi.Nian.Yong.Heng.S03E => Yi.Nian.Yong.Heng.S01E && S01E <> 2020 >> EP+106
 - [MoviePilot配置教程](https://hackfang.me/movie-pilot-install-and-guide)：自动化观影平台MoviePilot安装与使用
 - [企业微信推送配置教程](https://pt-helper.notion.site/50a7b44e255d40109bd7ad474abfeba5)：企业微信推送
 - [moviepilotNameTest](https://greasyfork.org/zh-CN/scripts/486188-moviepilotnametest)：从站点页面发送种子到MP的油猴脚本
-- 
 
 
