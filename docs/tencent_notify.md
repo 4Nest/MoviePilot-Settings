@@ -57,6 +57,8 @@ services:
 
 ### 3.MP插件
 
+[下载](https://github.com/4Nest/MoviePilot-Settings/blob/main/src/tencent_subscribe.py)
+
 #### 修改插件
 
 将插件中的mp_url、username、password修改为你自己的
@@ -67,7 +69,7 @@ services:
 
 创建文件夹`nonebot_plugin_subscribe`
 
-将`__init__.py`文件放入文件夹中
+将插件重命名为`__init__.py`放入文件夹中
 
 重启加载
 
