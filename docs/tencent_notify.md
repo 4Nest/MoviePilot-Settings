@@ -55,7 +55,7 @@ services:
 
 `superusers`修改为`你自己的qq号`
 
-### 3.MP插件
+### 3.MP订阅插件
 
 [下载](https://github.com/4Nest/MoviePilot-Settings/blob/main/src/tencent_subscribe.py)
 
