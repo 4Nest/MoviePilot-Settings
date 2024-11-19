@@ -9,6 +9,14 @@
 
 ### 1.构建docker
 
+cd进入compose的目录
+
+使用`git clone https://github.com/LiteyukiStudio/LiteyukiBot --depth=1`拉取代码
+
+群晖可以去套件中心安装Git
+
+compose启动
+
 ```
 version: '3'
 services:
@@ -41,11 +49,7 @@ services:
     - TZ=Asia/Shanghai
 #    - http_proxy=http://192.168.2.5:7890
 #    - https_proxy=http://192.168.2.5:7890
-
-
 ```
-
-
 
 ### 2.修改liteyukibot配置文件
 
@@ -53,7 +57,9 @@ services:
 
 `host`修改为`0.0.0.0`
 
-`superusers`修改为`你自己的qq号`
+添加一行
+
+`superusers: ["your qq"]`
 
 ### 3.MP订阅插件
 
@@ -71,7 +77,13 @@ services:
 
 将插件重命名为`__init__.py`放入文件夹中
 
-重启加载
+docker ps找到容器
+
+进入容器 docker exec -it xxxx /bin/bash
+
+输入pip install requests
+
+最后重启容器
 
 ### 4.登录QQ
 
@@ -100,4 +112,3 @@ services:
 选中ONEBOT-11
 
 服务器地址：`http://x.x.x.x:3000`
-
