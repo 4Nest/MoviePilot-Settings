@@ -68,5 +68,15 @@ Swallowed.Star.S02 => Swallowed.Star.S01
 A.Will.Eternal.S03E => A.Will.Eternal.S01E && S01E <> 2020 >> EP+106
 (?<=Yi.Nian.Yong.Heng.S03.*?)2024 => 2020
 Yi.Nian.Yong.Heng.S03E => Yi.Nian.Yong.Heng.S01E && S01E <> 2020 >> EP+106
+#白夜追凶
+Day.and.Night(?=.+ADWeb) => 白夜追凶.Day.and.Night
 #沧元图 ADWeb
 Azure.Legacy.S01E(?=.+ADWeb) => Azure.Legacy.S02E && S02E <> 2023 >> EP-30
+#少年白马醉春风 ADWeb
+少年白马醉春风.The.Young.Brewmaster(?:s|'s).Adventure.S02E(?=.+ADWeb) => The.Young.Brewmasters.Adventure.S02E && S02E <> 2024 >> EP-20
+(?i)BLEACH.Sennen.Kessen.hen.S01(?=.*ADWeb) => BLEACH.Sennen.Kessen.hen.S02 {[tmdbid=30984;type=tv;s=2]}
+(?i)BLEACH.Sennen.Kessenhen.S01(?=.*ADWeb) => BLEACH.Sennen.Kessen.hen.S02 {[tmdbid=30984;type=tv;s=2]}
+#2025年1月新番
+#最弱技能《果实大师》 ～关于能无限食用技能果实（吃了就会死）这件事～【ADWeb】
+Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You.ni.Natta.Ken.Nitsuite => Kinomi.Master
+(?<=Kinomi.Master.S01.*?)2025 => 2024
