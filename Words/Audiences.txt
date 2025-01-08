@@ -1,0 +1,35 @@
+#从零开始的异世界
+Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S03 => Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S01 && S01 <> 2024 >> EP+50
+#乱马
+Ranma.S01(?=.*2024) => Ranma.½.S01
+#斗破苍穹
+斗破苍穹.年番.Fights.Break.Sphere.S05 => 斗破苍穹.Fights.Break.Sphere.S05
+#香格里拉边境S02
+ShangriLa.Frontier.S02E => ShangriLa.Frontier.S01E && S01 <> 2024 >> EP+25
+#吞噬星空 ADWeb
+(?<=Swallowed.Star.S05.*?)2024 => 2020
+(?<=Swallowed.Star.S04.*?)2023 => 2020
+(?<=Swallowed.Star.S03.*?)2022 => 2020
+(?<=Swallowed.Star.S02.*?)2021 => 2020
+Swallowed.Star.S05(?=.*ADWeb) => Swallowed.Star.S01
+Swallowed.Star.S04 => Swallowed.Star.S01 && S01 <> 2020 >> EP+85
+Swallowed.Star.S03 => Swallowed.Star.S01
+Swallowed.Star.S02 => Swallowed.Star.S01
+#一念永恒
+(?<=A.Will.Eternal.S03.*?)2024 => 2020
+A.Will.Eternal.S03E => A.Will.Eternal.S01E && S01E <> 2020 >> EP+106
+(?<=Yi.Nian.Yong.Heng.S03.*?)2024 => 2020
+Yi.Nian.Yong.Heng.S03E => Yi.Nian.Yong.Heng.S01E && S01E <> 2020 >> EP+106
+#白夜追凶
+Day.and.Night(?=.+ADWeb) => 白夜追凶.Day.and.Night
+#沧元图 ADWeb
+Azure.Legacy.S01E(?=.+ADWeb) => Azure.Legacy.S02E && S02E <> 2023 >> EP-30
+#少年白马醉春风 ADWeb
+少年白马醉春风.The.Young.Brewmaster(?:s|'s).Adventure.S02E(?=.+ADWeb) => The.Young.Brewmasters.Adventure.S02E && S02E <> 2024 >> EP-20
+#死神
+(?i)BLEACH.Sennen.Kessen.hen.S01(?=.*ADWeb) => BLEACH.Sennen.Kessen.hen.S02 {[tmdbid=30984;type=tv;s=2]}
+(?i)BLEACH.Sennen.Kessenhen.S01(?=.*ADWeb) => BLEACH.Sennen.Kessen.hen.S02 {[tmdbid=30984;type=tv;s=2]}
+#2025年1月新番
+#最弱技能《果实大师》 ～关于能无限食用技能果实（吃了就会死）这件事～【ADWeb】
+Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You.ni.Natta.Ken.Nitsuite => Kinomi.Master
+(?<=Kinomi.Master.S01.*?)2025 => 2024
