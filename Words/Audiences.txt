@@ -1,3 +1,7 @@
+#此词表仅适用于Audiences资源，其他未检测
+#此词表仅适用于Audiences资源，其他未检测
+#此词表仅适用于Audiences资源，其他未检测
+
 #从零开始的异世界【ADWeb】
 Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S03 => Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S01 && S01 <> 2024 >> EP+50
 
@@ -44,6 +48,6 @@ Azure.Legacy.S01E(?=.+ADWeb) => Azure.Legacy.S02E && S02E <> 2023 >> EP-30
 Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You.ni.Natta.Ken.Nitsuite => Kinomi.Master
 (?<=Kinomi.Master.S01.*?)2025 => 2024
 
-#假面骑士加布
+#假面骑士加布【ADWeb】
 假面骑士加布.Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
 Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
