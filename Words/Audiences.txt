@@ -47,6 +47,8 @@ Azure.Legacy.S01E(?=.+ADWeb) => Azure.Legacy.S02E && S02E <> 2023 >> EP-30
 #最弱技能《果实大师》 ～关于能无限食用技能果实（吃了就会死）这件事～【ADWeb】
 Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You.ni.Natta.Ken.Nitsuite => Kinomi.Master
 (?<=Kinomi.Master.S01.*?)2025 => 2024
+#S级怪兽《贝希摩斯》被误认成小猫，成为精灵女孩的骑士(宠物)一起生活【ADWeb】
+(?<=S-Rank.Monster.no.Behemoth.Dakedo.Neko.to.Machigawarete.Elf.Musume.no.Pet.to.Shite.Kurashitemasu.S01.*?)2024 => 2025
 
 #假面骑士加布【ADWeb】
 假面骑士加布.Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
