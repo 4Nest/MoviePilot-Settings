@@ -1,2 +1,0 @@
-#白夜追凶
-Day.and.Night(?=.+ADWeb) => 白夜追凶.Day.and.Night
