@@ -46,3 +46,4 @@ Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You
 
 #假面骑士加布
 假面骑士加布.Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
+Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
