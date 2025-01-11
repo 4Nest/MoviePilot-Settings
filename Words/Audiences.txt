@@ -53,3 +53,7 @@ Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You
 #假面骑士加布【ADWeb】
 假面骑士加布.Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
 Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
+
+#药屋少女的呢喃【ADWeb】
+(?<=Kusuriya.no.Hitorigoto.S02.+?)2025 => 2024
+Kusuriya.no.Hitorigoto.S02 => Kusuriya.no.Hitorigoto.S01 && S01E <> 2024 >> EP+24
