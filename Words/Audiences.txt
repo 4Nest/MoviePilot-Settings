@@ -35,4 +35,5 @@ Azure.Legacy.S01E(?=.+ADWeb) => Azure.Legacy.S02E && S02E <> 2023 >> EP-30
 #最弱技能《果实大师》 ～关于能无限食用技能果实（吃了就会死）这件事～【ADWeb】
 Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You.ni.Natta.Ken.Nitsuite => Kinomi.Master
 (?<=Kinomi.Master.S01.*?)2025 => 2024
-
+#假面骑士加布
+假面骑士加布.Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
