@@ -53,12 +53,17 @@ movie:
   外语电影:
 
 tv:
+  儿童:
+    genre_ids: '10762'
   国漫:
     genre_ids: '16'
     origin_country: 'CN,TW,HK'
   日番:
     genre_ids: '16'
     origin_country: 'JP'
+  欧美漫:
+    genre_ids: '16'
+    origin_country: 'US,FR,GB,DE,ES,IT,NL,PT,RU,UK'
   纪录片:
     genre_ids: '99'
   综艺:
@@ -119,13 +124,13 @@ tv:
 参考[PiliPili WIKI](https://wiki.touhou.ing/advanced/006.html)
 
 ```
-{{title}} ({{year}})/{{title}} ({{year}}) - {{videoFormat}}{% if videoCodec %}.{{videoCodec}}{% endif %}{% if audioCodec %}.{{audioCodec}}{% endif %}{% if customization %}.{{customization}}{% endif %}{%if effect %}.{{effect}}{% endif %}{% if releaseGroup %}.{{releaseGroup}}{% endif %}{{fileExt}}
+{{title}}{% if year %} ({{year}}){% endif %}{% if tmdbid %} {tmdbid={{tmdbid}}}{% endif %}/{{title}}{% if year %} ({{year}}){% endif %}{% if tmdbid %} {tmdbid={{tmdbid}}}{% endif %} - {{videoFormat}}{% if videoCodec %}.{{videoCodec}}{% endif %}{% if audioCodec %}.{{audioCodec}}{% endif %}{% if customization %}.{{customization}}{% endif %}{%if effect %}.{{effect}}{% endif %}{% if releaseGroup %}.{{releaseGroup}}{% endif %}{{fileExt}}
 ```
 
 ##### 电视剧重命名格式
 
 ```
-{{title}} ({{year}})/Season {{season}}/{{title}} {{season_episode}} {{videoFormat}}{% if customization %}.{{customization}}{% endif %}{% if releaseGroup %}.{{releaseGroup}}{% endif %}{{fileExt}}
+{{title}}{% if year %} ({{year}}){% endif %}{% if tmdbid %} {tmdbid={{tmdbid}}}{% endif %}/Season {{season}}/{{title}} {{season_episode}} {{videoFormat}}{% if customization %}.{{customization}}{% endif %}{% if releaseGroup %}.{{releaseGroup}}{% endif %}{{fileExt}}
 ```
 
 ##### 效果图
@@ -199,13 +204,13 @@ services:
 #### 自定义规则
 
 ```
-[{"id":"Complete","name":"完结","include":"(全|共)\\d(集|期)|完结|合集|Complete","exclude":""},{"id":"filterGlobal","name":"全局过滤","include":"","exclude":"(?i)日语无字|先行|DV|MiniBD|DIY原盘|iPad|UPSCALE|AV1|BDMV|RMVB|DVD|vcd|480p|OPUS","seeders":""},{"id":"filerGroup","name":"组过滤","include":"","exclude":"(?i)SubsPlease|Up to 21°C|VARYG|TELESYNC|NTb|sGnb|BHYS|HDSWEB|DBD|HDH|COLLECTiVE|SRVFI|HDSPad"},{"id":"filterMovie","name":"电影体积过滤","include":"","exclude":"","size_range":"0-22000","seeders":""},{"id":"filterSeries","name":"剧集体积过滤","include":"","exclude":"","size_range":"0-5120"},{"id":"AnimeGroup","name":"动漫组","include":"7³ACG|VCB-Studio","exclude":"","size_range":""},{"id":"Audiences","name":"观众官组","include":"ADE|ADWeb","exclude":"","seeders":""},{"id":"HHWEB","name":"憨憨官组","include":"HHWEB","exclude":""},{"id":"Crunchyroll","name":"CR源","include":"CR|Crunchyroll","exclude":""},{"id":"Netflix","name":"NF源","include":"Netflix|NF","exclude":""},{"id":"B-Global","name":"BG源","include":"B-Global|BG","exclude":""},{"id":"AMZN","name":"AMZN源","include":"AMZN|Amazon","exclude":""},{"id":"HQ","name":"高码","include":"HQ|高码|EDR","exclude":"","size_range":""},{"id":"DDP","name":"杜比音轨","include":"DDP","exclude":""}]
+[{"id":"Complete","name":"完结","include":"(全|共)\\d(集|期)|完结|合集|Complete","exclude":""},{"id":"filterGlobal","name":"全局过滤","include":"","exclude":"(?i)日语无字|先行|\\bDV\\b|MiniBD|DIY原盘|iPad|UPSCALE|AV1|BDMV|RMVB|CAMRip|DVD|vcd|480p|OPUS"},{"id":"filerGroup","name":"组过滤","include":"","exclude":"(?i)SubsPlease|Up to 21°C|VARYG|TELESYNC|NTb|sGnb|BHYS|HDSWEB|DBD|HDH|COLLECTiVE|SRVFI|HDSPad"},{"id":"filterMovie","name":"电影体积过滤","include":"","exclude":"","size_range":"0-25000"},{"id":"filterSeries","name":"剧集体积过滤","include":"","exclude":"","size_range":"0-10240"},{"id":"AnimeGroup","name":"动漫组","include":"7³ACG|VCB-Studio","exclude":""},{"id":"Audiences","name":"观众官组","include":"ADE|ADWeb","exclude":""},{"id":"HHWEB","name":"憨憨官组","include":"HHWEB","exclude":""},{"id":"Crunchyroll","name":"CR源","include":"CR|Crunchyroll","exclude":""},{"id":"Netflix","name":"NF源","include":"Netflix|NF","exclude":""},{"id":"B-Global","name":"BG源","include":"B-Global|BG","exclude":""},{"id":"AMZN","name":"AMZN源","include":"AMZN|Amazon","exclude":""},{"id":"HQ","name":"高码","include":"HQ|高码|EDR","exclude":""},{"id":"DDP","name":"杜比音轨","include":"DDP","exclude":""},{"id":"60fps","name":"60帧","include":"60帧|60fps"}]
 ```
 
 #### 优先级规则组
 
 ```
-[{"name":"前置过滤","rule_string":"filterGlobal& !BLU & !REMUX & !3D & !DOLBY &filerGroup","media_type":"","category":""},{"name":"动画电影","rule_string":" SPECSUB & 4K & BLURAY & H265 > CNSUB & 4K & BLURAY & H265 > CNSUB & 4K & BLURAY > CNSUB & 1080P & BLURAY > CNSUB & 4K > CNSUB & 1080P ","media_type":"电影","category":"动画电影"},{"name":"华语电影","rule_string":" 4K & BLURAY & H265 > 1080P & BLURAY > 4K &HQ&DDP> 4K &HQ> 4K > 1080P ","media_type":"电影","category":"华语电影"},{"name":"外语电影","rule_string":" SPECSUB & 4K & BLURAY & H265 &filterMovie> CNSUB & 4K & BLURAY & H265 &filterMovie> CNSUB & 1080P & BLURAY &filterMovie> CNSUB & 4K &filterMovie> CNSUB & 1080P &filterMovie","media_type":"电影","category":"外语电影"},{"name":"日番","rule_string":"AnimeGroup& CNSUB & BLURAY & 1080P >Audiences& H265 & BLURAY & 1080P >Audiences&AMZN&HHWEB& CNSUB & 1080P >Audiences&Crunchyroll& CNSUB & 1080P >Audiences&Netflix&HHWEB& CNSUB & 1080P >Audiences&B-Global& 4K & CNSUB >Audiences&B-Global& 1080P & CNSUB >Audiences&HHWEB& CNSUB & 1080P > CNSUB & BLURAY & 1080P > 1080P & CNSUB > 1080P ","media_type":"电视剧","category":"日番"},{"name":"欧美漫","rule_string":" AnimeGroup& CNSUB & BLURAY & 1080P >Audiences& H265 & BLURAY & 1080P >Audiences&AMZN&HHWEB& CNSUB & 1080P >Audiences&Crunchyroll& CNSUB & 1080P >Audiences&Netflix&HHWEB& CNSUB & 1080P >Audiences&B-Global& 4K & CNSUB >Audiences&B-Global& 1080P & CNSUB >Audiences&HHWEB& CNSUB & 1080P > CNSUB & BLURAY & 1080P > 1080P & CNSUB > 1080P ","media_type":"电视剧","category":"欧美漫"},{"name":"国漫","rule_string":" 4K &Audiences&HHWEB&DDP> 4K &Audiences&HHWEB> 1080P &Audiences&HHWEB> 4K > 1080P > 720P ","media_type":"电视剧","category":"国漫"},{"name":"纪录片","rule_string":" 4K & BLURAY > 1080P & BLURAY > 4K > 1080P ","media_type":"电视剧","category":"纪录片"},{"name":"综艺","rule_string":" 4K & WEBDL &Complete> 4K & WEBDL &HHWEB> WEBDL & 1080P &HHWEB> 4K & WEBDL &Audiences> 1080P &Audiences& WEBDL > 1080P ","media_type":"电视剧","category":"综艺"},{"name":"国产剧","rule_string":" 4K & WEBDL &HQ> 4K & WEBDL > 4K & WEBDL > 1080P > 720P ","media_type":"电视剧","category":"国产剧"},{"name":"欧美剧","rule_string":" 1080P & BLURAY &filterSeries& CNSUB > 1080P & CNSUB &filterSeries> CNSUB &filterSeries","media_type":"电视剧","category":"欧美剧"},{"name":"日韩剧","rule_string":" SPECSUB & 1080P & BLURAY &filterSeries> CNSUB & 1080P &filterSeries> 1080P & CNSUB &filterSeries> CNSUB &filterSeries ","media_type":"电视剧","category":"日韩剧"},{"name":"现场","rule_string":" CNSUB & 4K > CNSUB & 1080P > 4K > 1080P > !720P ","media_type":"电影","category":"现场"}]
+[{"name":"前置过滤","rule_string":"filterGlobal& !BLU & !REMUX & !3D & !DOLBY &filerGroup","media_type":"","category":""},{"name":"动画电影","rule_string":" SPECSUB & 4K & BLURAY & H265 > CNSUB & 4K & BLURAY & H265 > CNSUB & 4K & BLURAY > CNSUB & 1080P & BLURAY > CNSUB & 4K > CNSUB & 1080P ","media_type":"电影","category":"动画电影"},{"name":"华语电影","rule_string":" 4K & BLURAY & H265 > 1080P & BLURAY > 4K &HQ&DDP> 4K &HQ> 4K > 1080P ","media_type":"电影","category":"华语电影"},{"name":"外语电影","rule_string":" SPECSUB & 4K & BLURAY & H265 &filterMovie> CNSUB & 4K & BLURAY & H265 &filterMovie> CNSUB & 1080P & BLURAY &filterMovie> CNSUB & 4K &filterMovie> CNSUB & 1080P &filterMovie","media_type":"电影","category":"外语电影"},{"name":"日番","rule_string":"AnimeGroup& CNSUB & BLURAY & 1080P >Audiences& H265 & BLURAY & 1080P >Audiences&AMZN& CNSUB & 1080P >HHWEB&AMZN& CNSUB & 1080P >Audiences&Crunchyroll& CNSUB & 1080P >Audiences&Netflix& CNSUB & 1080P >Netflix&HHWEB& CNSUB & 1080P >Audiences&B-Global& 4K & CNSUB >Audiences&B-Global& 1080P & CNSUB >Audiences& CNSUB & 1080P >HHWEB& CNSUB & 1080P > CNSUB & BLURAY & 1080P > 1080P & CNSUB > 1080P ","media_type":"电视剧","category":"日番"},{"name":"欧美漫","rule_string":"Audiences& H265 & BLURAY & 1080P >Audiences&AMZN& CNSUB & 1080P >HHWEB&AMZN& CNSUB & 1080P >Audiences&Crunchyroll& CNSUB & 1080P >Audiences&Netflix& CNSUB & 1080P >Netflix&HHWEB& CNSUB & 1080P >Audiences& CNSUB & 1080P >HHWEB& CNSUB & 1080P > CNSUB & BLURAY & 1080P > 1080P & CNSUB > 1080P ","media_type":"电视剧","category":"欧美漫"},{"name":"国漫","rule_string":" 4K &Audiences&DDP> 4K &HHWEB&DDP> 4K &Audiences> 4K &HHWEB> 1080P &Audiences> 1080P &HHWEB> 4K > 1080P > 720P ","media_type":"电视剧","category":"国漫"},{"name":"纪录片","rule_string":" 4K & BLURAY > 1080P & BLURAY > 4K > 1080P ","media_type":"电视剧","category":"纪录片"},{"name":"综艺","rule_string":" 4K & WEBDL &Complete> 4K & WEBDL &HHWEB> WEBDL & 1080P &HHWEB> 4K & WEBDL &Audiences> 1080P &Audiences& WEBDL > 1080P ","media_type":"电视剧","category":"综艺"},{"name":"国产剧","rule_string":" 4K & WEBDL &HQ> 4K & WEBDL &60fps& HDR > 4K & WEBDL &HHWEB> 4K &Audiences& WEBDL > 4K > 1080P > 720P ","media_type":"电视剧","category":"国产剧"},{"name":"欧美剧","rule_string":" 1080P & BLURAY &filterSeries& CNSUB > 1080P & CNSUB &filterSeries> CNSUB &filterSeries","media_type":"电视剧","category":"欧美剧"},{"name":"日韩剧","rule_string":" SPECSUB & 1080P & BLURAY &filterSeries> CNSUB & 1080P &filterSeries> 1080P & CNSUB &filterSeries> CNSUB &filterSeries","media_type":"电视剧","category":"日韩剧"},{"name":"现场","rule_string":" CNSUB & 4K > CNSUB & 1080P > 4K > 1080P > !720P ","media_type":"电影","category":"现场"}]
 ```
 
 ### 搜索&下载
