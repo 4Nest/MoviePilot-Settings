@@ -1,43 +1,67 @@
-version: '3.3'
-
 services:
 
-    moviepilot:
-        stdin_open: true
-        tty: true
-        container_name: moviepilot-v2
-        hostname: moviepilot-v2
-        networks:
-            - moviepilot
-        ports:
-            - target: 3000
-              published: 3000
-              protocol: tcp
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro                     #docker映射
-            - /mnt/user/appdata/moviepilot/config:/config                      #配置保存路径
-            - /mnt/user/appdata/moviepilot/core:/moviepilot/.cache/ms-playwright         #浏览器内核保存路径 
-            - /mnt/user/media:/media                                           #媒体文件路径
-            #- /volume2/movie:/movie                                           #根据需要添加你的媒体目录
-            #- /volume3/serie:/serie                                           #根据需要添加你的媒体目录
-            #- /volume4/anime:/anime                                           #根据需要添加你的媒体目录
-            #- /volume4/video:/video                                           #根据需要添加你的媒体目录
-        environment:
-            - NGINX_PORT=3000                                                  #WEB服务端口
-            - PORT=3001                                                        #API服务端口
-            - PUID=0                                                           #运行程序用户的uid
-            - PGID=0                                                           #运行程序用户的gid
-            - UMASK=022                                                        #掩码权限
-            - TZ=Asia/Shanghai                                                 #时区   
-            - PROXY_HOST=http://192.168.2.5:7890                               #填写你自己的代理地址
-            - MOVIEPILOT_AUTO_UPDATE=release                                   #重启时自动更新
-            - AUTH_SITE=iyuu                                                   #认证站点
-            - IYUU_SIGN=IYUU00000                                              #修改为自己的iyuu令牌
-            - SUPERUSER=admin                                                  #修改为你自己的用户名
-            #- API_TOKEN=1234567890123456                                      #自定义16位以上token，不设置随机生成
-            #- GITHUB_TOKEN=ghp_xxxxx                                          #修改为自己的GITHUB_TOKEN
-        restart: always
-        image: jxxghp/moviepilot-v2:latest
-networks:
   moviepilot:
-    name: moviepilot
+    stdin_open: true
+    tty: true
+    container_name: moviepilot-v2
+    hostname: moviepilot-v2
+    ports:
+     - '4500:4500'
+     - '4501:4501'
+     - '9096:9096'
+    volumes:
+      - '/mnt/disk1/Media:/media' #媒体
+      - './config:/config' #持久化配置
+      - './core:/moviepilot/.cache/ms-playwright' #内核浏览器
+      - '/var/run/docker.sock:/var/run/docker.sock:ro' #重启MP权限
+    environment:
+      - 'NGINX_PORT=4500'
+      - 'PORT=4501'
+      - 'PUID=0'
+      - 'PGID=0'
+      - 'UMASK=000'
+      - 'TZ=Asia/Shanghai'
+      - 'MOVIEPILOT_AUTO_UPDATE=true'
+      - 'SUPERUSER=admin'
+      - 'PROXY_HOST=http://192.168.2.2:7890' #代理
+      - 'DB_TYPE=postgresql'
+      - 'DB_POSTGRESQL_HOST=postgresql'
+      - 'DB_POSTGRESQL_PORT=5432'
+      - 'DB_POSTGRESQL_DATABASE=moviepilot'
+      - 'DB_POSTGRESQL_USERNAME=moviepilot'
+      - 'DB_POSTGRESQL_PASSWORD=moviepilot'
+      - 'CACHE_BACKEND_TYPE=redis'
+      - 'CACHE_BACKEND_URL=redis://:moviepilot@redis:6379'
+    restart: always
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    image: jxxghp/moviepilot-v2:latest
+
+  redis:
+    volumes:
+        - ./redis/data:/data
+    image: redis
+    command: redis-server --save 600 1 --requirepass moviepilot
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgresql:
+    image: postgres:17.6
+    restart: always
+    environment:
+      POSTGRES_DB: moviepilot
+      POSTGRES_USER: moviepilot
+      POSTGRES_PASSWORD: moviepilot
+    volumes:
+      - ./postgresql:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moviepilot -d moviepilot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
