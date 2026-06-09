@@ -1,9 +1,8 @@
-#此词表仅适用于Audiences资源，其他未检测
-#此词表仅适用于Audiences资源，其他未检测
-#此词表仅适用于Audiences资源，其他未检测
-
 #从零开始的异世界【ADWeb】
 Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S03 => Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S01 && S01 <> 2024 >> EP+50
+
+#关于我转生变成史莱姆这档事【ADE】
+That.Time.I.Go.Reincarnated.as.a.Slime => That.Time.I.Got.Reincarnated.as.a.Slime
 
 #乱马【ADWeb】
 Ranma.S01(?=.*2024) => Ranma.½.S01
@@ -14,15 +13,23 @@ Ranma.S01(?=.*2024) => Ranma.½.S01
 #香格里拉边境S02【ADWeb】
 ShangriLa.Frontier.S02E => ShangriLa.Frontier.S01E && S01 <> 2024 >> EP+25
 
+#狐妖小红娘 镜花缘篇【ADWeb】
+(?<=Fox.Spirit.Matchmaker.*?)S12E(?=.*ADWeb) => S01E && S01E  <> 2024 >> EP+157
+(?<=Fox.Spirit.Matchmaker.*?)2024(?=.*ADWeb) => 2015
+
 #吞噬星空【ADWeb】
-(?<=Swallowed.Star.S05.*?)2024 => 2020
-(?<=Swallowed.Star.S04.*?)2023 => 2020
-(?<=Swallowed.Star.S03.*?)2022 => 2020
 (?<=Swallowed.Star.S02.*?)2021 => 2020
+(?<=Swallowed.Star.S03.*?)2022 => 2020
+(?<=Swallowed.Star.S04.*?)2023 => 2020
+(?<=Swallowed.Star.S05.*?)2024 => 2020
+(?<=Swallowed.Star.S06.*?)2025 => 2020
+(?<=Swallowed.Star.S07.*?)2026 => 2020
+Swallowed.Star.S02(?=.*ADWeb) => Swallowed.Star.S01
+Swallowed.Star.S03(?=.*ADWeb) => Swallowed.Star.S01
+Swallowed.Star.S04(?=.*ADWeb) => Swallowed.Star.S01 && S01 <> 2020 >> EP+85
 Swallowed.Star.S05(?=.*ADWeb) => Swallowed.Star.S01
-Swallowed.Star.S04 => Swallowed.Star.S01 && S01 <> 2020 >> EP+85
-Swallowed.Star.S03 => Swallowed.Star.S01
-Swallowed.Star.S02 => Swallowed.Star.S01
+Swallowed.Star.S06(?=.*ADWeb) => Swallowed.Star.S01
+Swallowed.Star.S07(?=.*ADWeb) => Swallowed.Star.S01
 
 #一念永恒【ADWeb】
 (?<=A.Will.Eternal.S03.*?)2024 => 2020
@@ -32,9 +39,6 @@ Yi.Nian.Yong.Heng.S03E => Yi.Nian.Yong.Heng.S01E && S01E <> 2020 >> EP+106
 
 #白夜追凶【ADWeb】
 Day.and.Night(?=.+ADWeb) => 白夜追凶.Day.and.Night
-
-#沧元图【ADWeb】
-Azure.Legacy.S01E(?=.+ADWeb) => Azure.Legacy.S02E && S02E <> 2023 >> EP-30
 
 #少年白马醉春风【ADWeb】
 少年白马醉春风.The.Young.Brewmaster(?:s|'s).Adventure.S02E(?=.+ADWeb) => The.Young.Brewmasters.Adventure.S02E && S02E <> 2024 >> EP-20
@@ -54,6 +58,200 @@ Hazure.Skill.Kinomi.Master.Skill.no.Mi.Tabetara.Shinu.wo.Mugen.ni.Taberareru.You
 假面骑士加布.Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
 Kamen.Rider.Gavv.S01 => Kamen.Rider.Gavv.S35
 
-#药屋少女的呢喃【ADWeb】
+#药屋少女的呢喃【ADWeb】搜索关键词添加【薬屋のひとりごと】
+The.Apothecary.Diaries => Kusuriya.no.Hitorigoto
 (?<=Kusuriya.no.Hitorigoto.S02.+?)2025 => 2024
 Kusuriya.no.Hitorigoto.S02 => Kusuriya.no.Hitorigoto.S01 && S01E <> 2024 >> EP+24
+
+#少年歌行 第四季【ADWeb】
+(?<=Great.Journey.of.Teenagers.S04.*?)2025 => 2018
+
+#亚刻奥特曼【ADWeb】
+Ultraman.Arc.S01E01 => Ultraman.Arc.S00E01
+Ultraman.Arc.S01E08 => Ultraman.Arc.S00E02
+Ultraman.Arc.S01E18 => Ultraman.Arc.S00E03
+Ultraman.Arc.S01E27 => Ultraman.Arc.S00E04
+Ultraman.Arc.S01E(0[2-7]) => Ultraman.Arc.S01E\1 && S01 <> 2024 >> EP-1
+Ultraman.Arc.S01E(09|1[0-7]) => Ultraman.Arc.S01E\1 && S01 <> 2024 >> EP-2
+Ultraman.Arc.S01E(19|2[0-6]) => Ultraman.Arc.S01E\1 && S01 <> 2024 >> EP-3
+Ultraman.Arc.S01E(2[8-9]) => Ultraman.Arc.S01E\1 && S01 <> 2024 >> EP-4
+
+#我的幸福婚姻 【ADWeb】搜索关键词添加【My Happy Marriage】
+(?<=My.Happy.Marriage.S02.+?)2025 => 2023
+My.Happy.Marriage.S02E => My.Happy.Marriage.S01E && S01E <> 2023 >> EP+12
+
+#筋肉人 完美超人始祖篇【ADWeb】
+Kinnikuman.Kanpeki.Choujin.Shisohen.S01 => Kinnikuman.Kanpeki.Choujin.Shisohen.S02 && S02 <> 2024 >> EP-11
+
+#凡人修仙传 虚天战纪【ADWeb】
+A.Record.Of.Mortals.Journey.To.Immortality.S00 => 虚天战纪 S01
+
+#斗罗大陆2：绝世唐门【ADWeb】
+Soul Land S02 => Soul Land II: The Unrivaled Tang 
+斗罗大陆.Soul.Land.S02 => Soul Land II: The Unrivaled Tang 
+
+#在地下城寻求邂逅是否搞错了什么【ADE】
+Is.It.Wrong.to.Try.to.Pick.Up.Girls.in.a.Dungeon => Danmachi
+Danmachi.S01OVA(?=.+ADE) => Danmachi.S00E01
+Danmachi.S02OVA(?=.+ADE) => Danmachi.S00E03
+Danmachi.S03OVA(?=.+ADE) => Danmachi.S00E04
+
+#风物妖厨【ADWeb】
+Mythical Feasts => Fengwu Demon Chef
+
+#堀与宫村【ADE】
+Horimiya(?=.+ADE) => Horimiya{[tmdbid=110070;type=tv]}
+
+#机动战士高达：水星的魔女【ADE】
+Mobile.Suit.Gundam.The.Witch.from.Mercury.S02 => Mobile.Suit.Gundam.The.Witch.from.Mercury.S01 && S01 <> 2023 >> EP+12
+
+#进击的巨人【ADE】
+Attack.on.Titan.OADE01(?=.+ADE) => Attack.on.Titan.S00E15
+Attack.on.Titan.OADE02(?=.+ADE) => Attack.on.Titan.S00E16
+Attack.on.Titan.OADE03(?=.+ADE) => Attack.on.Titan.S00E13
+Attack.on.Titan.OADE04(?=.+ADE) => Attack.on.Titan.S00E07
+Attack.on.Titan.OADE05(?=.+ADE) => Attack.on.Titan.S00E14
+Attack.on.Titan.OADE06(?=.+ADE) => Attack.on.Titan.S00E17
+Attack.on.Titan.OADE07(?=.+ADE) => Attack.on.Titan.S00E18
+Attack.on.Titan.OADE08(?=.+ADE) => Attack.on.Titan.S00E19
+Attack.on.Titan.S04E29-31(?=.+ADE) => Attack.on.Titan.S00E36
+Attack.on.Titan.S04E32-35(?=.+ADE) => Attack.on.Titan.S00E37
+
+#完美世界【ADWeb】
+(?<=Perfect.World.*?)202(2|3) => 2021
+Perfect.World.S0(2|3|4)(?=.+ADWeb) => Perfect.World.S01
+
+#假面骑士时王【ADWeb】
+假面骑士时王.Kamen.Rider.Zi-O.S01 => Kamen.Rider.S29
+
+#海贼王【ADWeb CR源】
+One.Piece.S01E0(?=(06[0-1]|0[1-5][0-9]|00[1-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S01E
+One.Piece.S01E0(?=(07[0-7]|06[2-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S02E
+One.Piece.S01E0(?=(09[0-1]|08[0-9]|07[8-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S03E
+One.Piece.S01E(?=(09[2-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S04E
+One.Piece.S01E(?=(130|1[0-2][0-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S04E
+One.Piece.S01E(?=(14[0-3]|13[1-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S05E
+One.Piece.S01E(?=(19[0-5]|1[5-8][0-9]|14[4-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S06E
+One.Piece.S01E(?=(22[0-8]|2[0-1][0-9]|19[6-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S07E
+One.Piece.S01E(?=(26[0-3]|2[3-5][0-9]|229)[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S08E
+One.Piece.S01E(?=(33[0-6]|3[0-2][0-9]|2[7-9][0-9]|26[4-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S09E
+One.Piece.S01E(?=(38[0-1]|3[4-7][0-9]|33[7-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S10E
+One.Piece.S01E(?=(40[0-7]|39[0-9]|38[2-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S11E
+One.Piece.S01E(?=(42[0-1]|41[0-9]|40[8-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S12E
+One.Piece.S01E(?=(52[0-2]|5[0-1][0-9]|4[3-9][0-9]|42[2-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S13E
+One.Piece.S01E(?=(580|5[3-7][0-9]|52[3-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S14E
+One.Piece.S01E(?=(64[0-2]|6[0-3][0-9]|59[0-9]|58[1-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S15E
+One.Piece.S01E(?=(69[0-2]|6[5-8][0-9]|64[3-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S16E
+One.Piece.S01E(?=(74[0-8]|7[0-3][0-9]|69[3-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S17E
+One.Piece.S01E(?=(80[0-3]|7[5-9][0-9]|749)[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S18E
+One.Piece.S01E(?=(87[0-7]|8[1-6][0-9]|80[4-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S19E
+One.Piece.S01E(?=(89[0-1]|88[0-9]|87[8-9])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S20E
+One.Piece.S01E(?=(89[2-9]|9[0-9]{2}|10[0-7][0-9]|108[0-8])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S21E
+One.Piece.S01E(?=(1089|109[0-9]|11[0-4][0-9]|115[0-5])[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S22E
+One.Piece.S01E(?=(115[6-9]|11[6-9]\d|1[2-9]\d{2})[.\s]) => 海贼王{[tmdbid=37854;type=tv]} S23E
+
+#莉可丽丝：友谊是时间的窃贼【ADWeb】
+Lycoris.Recoil.Friends.are.thieves.of.time(?=.+ADWeb) => 莉可丽丝 S02 {[tmdbid=154494;type=tv;s=2]}
+
+#奔跑吧 第13季【ADWeb】
+Keep.Running.S09(?=.+ADWeb) => Keep.Running.S13
+
+#刑侦12【ADWeb】
+刑侦12.D.I.D..12 => One-twelfth
+
+#仙逆剧场版【ADWeb】
+Renegade.Immortal.Movie.Shen.Lin.Zhi.Zhan => 仙逆剧场版：神临之战
+
+#诛仙第三季【ADWeb】
+Jade.Dynasty.S01E(2[7-9]|3[0-9]|4[0-9]|5[0-2])(?=.+ADWeb) => Jade.Dynasty.S02E\1 && S02E <> 2024 >> EP-26
+
+#国色芳华第二季【ADWeb】
+In.the.Name.of.Blossom.S01(?=.*ADWeb) => In.the.Name.of.Blossom.S02
+
+#租借女友第四季【ADWeb】
+Kanojo.Okarishimasu.S04E(?=.*ADWeb) => Kanojo.Okarishimasu.{[tmdbid=96316;type=tv;s=1]}.S01E && S01E <> 2025 >> EP+36
+
+#青春笨蛋少年不做圣诞服女郎的梦【ADWeb】
+Seishun.Buta.Yarou.wa.Santa.Claus.no.Yume.wo.Minai.S01E(?=.*ADWeb) => Seishun.Buta.Yarou.wa.Santa.Claus.no.Yume.wo.Minai.S02E
+
+#被驱逐开勇者派对的白魔导师，被S级冒险者捡到 ～这个白魔导师超规格～【ADWeb】
+Yuusha.Party.wo.Tsuihou.Sareta.Shiro.Madoushi.S.Rank.Boukensha.ni.Hirowareru.Kono.Shiro.Madoushi.ga.Kikakugaisugiru(?=.*ADWeb) => The White Mage Who Was Banished From the Hero's Party Is Picked Up by an S Rank Adventurer{[tmdbid=284771;type=tv]}
+
+#我们不可能成为恋人！绝对不行。（※似乎可行？）【ADWeb】
+Watashi.ga.Koibito.ni.Nareru.Wake.Naijan.Murimuri.Muri.ja.Nakatta(?=.*ADWeb) => 我们不可能成为恋人！绝对不行{[tmdbid=277513;type=tv]}
+
+# 更衣人偶坠入爱河 第二季【ADWeb】
+Sono.Bisque.Doll.wa.Koi.wo.Suru.S02E(?=.*ADWeb) => 更衣人偶坠入爱河{[tmdbid=123249;type=tv]}S01E && S01E <> 2025 >> EP+12
+
+#我们不可能成为恋人！绝对不行【ADWeb】
+Watashi.ga.Koibito.ni.Nareru.Wake.Naijan.Murimuri.Muri.ja.Nakatta(?=.*ADWeb) => 我们不可能成为恋人！绝对不行{[tmdbid=277513;type=tv]}
+
+#转生为第七王子，随心所欲的魔法学习之路【ADWeb】
+Tensei.Shitara.Dai.Nana.Ouji.Dattanode.Kimamani.Majutsu.wo.Kiwamemasu.S02E(?=.+ADWeb) => Tensei.Shitara.Dai.Nana.Ouji.Dattanode.Kimamani.Majutsu.wo.Kiwamemasu.S01E
+
+#噗妮露是可爱史莱姆 第二季【ADWeb】
+Puniru.wa.Kawaii.Slime.S02E(?=.*ADWeb) => Puniru.wa.Kawaii.Slime.S01E && S01E <> 2025 >> EP+12
+
+#斗罗大陆剧场版 剑道尘心【ADWeb】
+Soul.Land.Movie.Jian.Dao.Chen.Xin(?=.*ADWeb) => Douluo.Dalu.Movie.Kendo.Dust.Heart
+
+#怪兽8号 第二季【ADWeb】
+Kaijuu.8.gou.S02(?=.*ADWeb) => Kaijuu.8.gou.S01
+(?<=Kaijuu.8.gou.S01.*?)2025 => 2024
+
+#紫川第二季【ADWeb】
+Eternal.Brotherhood(?=.*2025) => Eternal.Brotherhood{[tmdbid=153869;type=tv]}
+
+#这就是僵尸吗【ADE】
+Is.This.a.Zombie(?=.*ADE) => Koreha.Zombie.Desuka
+
+#三坪房间的侵略者【ADE】
+Invaders.of.the.Rokujyouma => Rokujouma.no.Shinryakusha
+
+#百炼成神 第三季【ADWeb】
+百炼成神.Apotheosis.S03 => Apotheosis.S03
+Apotheosis.S03 => Apotheosis{[tmdbid=213791;type=tv]}.S01 && S01 <> 2025 >> EP+104
+(?<=Apotheosis.*?)2025(?=.*ADWeb) => 2022
+
+#极速车魂 第三季【ADWeb】
+MF.GHOST.S03(?=.*ADWeb) => MF.GHOST.S01 && S01 <> 2026 >> EP+24
+
+#咒术回战第三季【ADWeb】
+Jujutsu.Kaisen.S03E(?=.*ADWeb) => Jujutsu.Kaisen.S01E && S01E <> 2026 >> EP+47
+
+#模范出租车 第三季【ADWeb】
+Taxi.Driver.Season.3.S01(?=.*ADWeb) => Taxi.Driver.S03
+
+#我推的孩子 第三季【ADWeb】
+\【我推的孩子\】 => 我推的孩子
+Oshi.no.Ko.S03E(?=.*ADWeb) => Oshi.no.Ko.{[tmdbid=203737;type=tv]}.S01E && S01E <> 2026 >> EP+24
+
+#葬送的芙莉莲第二季【ADWeb】
+Sousou.no.Frieren.S02E(?=.*ADWeb) => Sousou.no.Frieren.S01E && S01E <> 2026 >> EP+28
+
+#地狱乐 第二季【ADWeb】
+Jigokuraku.S02E(?=.*ADWeb) => Jigokuraku.S01E && S01E <> 2026 >> EP+13
+
+#权欲之巅【ADWeb】
+Climax(?=.*ADWeb) => 权欲之巅.Climax{[tmdbid=241860];type=tv}
+
+ #小书痴的下克上 第二季【ADWeb】
+Honzuki.no.Gekokujou.Shisho.ni.Naru.Tame.ni.wa.Shudan.wo.Erandeiraremasen => Honzuki.no.Gekokujou
+Honzuki.no.Gekokujou.S04E(?=.*ADWeb) => Honzuki.no.Gekokujou.S02E
+
+#租借女友 第五季【ADWeb】
+Kanojo.Okarishimasu.S05(?=.*ADWeb) => Kanojo.Okarishimasu.{[tmdbid=96316;type=tv]}.S01 && S01 <> 2026 >> EP+48
+
+#Re：从零开始的异世界生活 第四季【ADWeb】
+Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S04E(?=.*ADWeb) => Re.Zero.kara.Hajimeru.Isekai.Seikatsu.S01E && S01E <> 2026 >> EP+66
+
+#主角【ADWeb】
+Main.Character(?=.*2026.*ADWeb) => Main.Character{[tmdbid=284110;type=tv]}
+
+#灵魂摆渡·十年【ADWeb】
+灵魂摆渡.The.Ferry.Man.S05E(?=.*2026) => 灵魂摆渡十年.The.Ferry.Man.S01E
+The.Ferry.Man.S05E(?=.*2026) => 灵魂摆渡十年.The.Ferry.Man.S01E
+
+#绝世战魂 S02【ADWeb】
+(?<=Peerless Battle Spirit S02.*?)2026 => 2024
+Peerless.Battle.Spirit.S02(?=.*ADWeb) => Peerless.Battle.Spirit.S01 && S01 <> 2024 >> EP+180
