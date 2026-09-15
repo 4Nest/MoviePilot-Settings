@@ -1,1 +1,25 @@
-# 自定义制作组/字幕组:每行一个,支持正则(特殊字符需转义)
+喵萌奶茶屋
+银色子弹字幕组
+绿茶字幕组
+三明治摆烂组
+AI-Raws
+SweetSub
+LoliHouse
+VCB-Studio
+7³ACG
+Snow-Raws
+NTb
+FLUX
+RLWeb
+Breeze@Sunny
+Rain@Sunny
+RLeaves
+Nest
+MWeb
+UBWEB
+FROGWEB
+Fusae
+FLUX
+Kawatare
+BiVerse
+BYNDR
