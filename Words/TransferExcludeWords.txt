@@ -7,4 +7,3 @@ __\w{6}/
 \[S\d+\s+Recap(\s+\d+)?\]
 \b(CDs|SPs|Scans|Preview|ScreenShot|Menu|Bonus|映像特典|映像|Special Ending Movie|specials|特典CD|Menu|Logo|Preview|WiKi.sample|UHD.SAMPLE|/mv)\b
 \b(NC)?(Disc|片头|OP|OVA|OAD|ED|Advice|Trailer|BDMenu|片尾|PV|CM|Preview|MENU|Info|EDPV|SongSpot|BDSpot)(\d{0,2}|_ALL)\b
-名侦探柯南特典合集|名侦探柯南剧场版22周年合集|名侦探柯南真人版|系列合集|特别篇合集|加更
