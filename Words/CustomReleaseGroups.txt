@@ -74,3 +74,4 @@ APTX4869
 NEO·QSW
 漫游字幕组
 philosophy-raws
+Nix-Raws
