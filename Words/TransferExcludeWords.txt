@@ -1,1 +1,10 @@
-# 文件整理屏蔽词:目录名或文件名包含则不整理,每行一个,支持正则
+__\w{6}/
+\[((TV|BD|\bBlu-ray\b)?\s*CM\s*\d{2,3})\]
+\[Teaser.*?\]
+\[PV.*?\]
+#\[\d{2}.\d\]
+\[NC[OPED]+.*?\]
+\[S\d+\s+Recap(\s+\d+)?\]
+\b(CDs|SPs|Scans|Preview|ScreenShot|Menu|Bonus|映像特典|映像|Special Ending Movie|specials|特典CD|Menu|Logo|Preview|WiKi.sample|UHD.SAMPLE|/mv)\b
+\b(NC)?(Disc|片头|OP|OVA|OAD|ED|Advice|Trailer|BDMenu|片尾|PV|CM|Preview|MENU|Info|EDPV|SongSpot|BDSpot)(\d{0,2}|_ALL)\b
+名侦探柯南特典合集|名侦探柯南剧场版22周年合集|名侦探柯南真人版|系列合集|特别篇合集|加更
