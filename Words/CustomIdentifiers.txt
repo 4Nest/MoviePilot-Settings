@@ -1,17 +1,12 @@
 \[Movie\]
 3D动画版 => 动画版
-episode\.\d{1}
+episode\.\d
 DTS-HDMA5.1 => DTS-HD.MA5.1
 \.(第\d{1,2}集)\. => \1
 (?<=(VCB-Studio|ANi).*?)(?i)Season( *)0?(\d+) => S\2
 (?<=SBSUB.*DR.*?)- => part
-\[CHS\_CHT\_JP\]\(\w{8}\)
-\[CHT\_JP\]\(\w{8}\)
-\[CHS\_JP\]\(\w{8}\)
-\[SBSUB\]\[CONAN\]\[DR => [银色子弹字幕组][名侦探柯南][S01E
-\[SBSUB\]\[CONAN\]\[ => [银色子弹字幕组][名侦探柯南][S01E
-chs&jpn => jpsc
-cht&jpn => jptc
+\[CH[ST](?:_(?:CH[ST]|JP))*\]\(\w{8}\)
+\[SBSUB\]\[CONAN\]\[(?:DR)? => [银色子弹字幕组][名侦探柯南][S01E
 (?<=(VCB-Studio|ANi).*?)2nd Season => S02
 (?<=(VCB-Studio|ANi).*?)IV => S04
 (?<=(VCB-Studio|ANi).*?)III => S03
@@ -19,11 +14,10 @@ cht&jpn => jptc
 (?<=VCB-Studio.*?)\(\d{2}\)
 [【\[](Fin|END)[】\]]|(?:|\s|\s-\s)(Fin|END)(?=\])|(?<=\d{1,2})_?(Fin|END)
 (?<=[\[【].*?(?:组|組|sub|S(?:UB|ub|tudio)|Raw(?:|s)|社)[\]】])(?:(?:\[|【|★|)\d{1,2}月新番(?:\]|】|★|)|)[\[【](.*?)[\]】] => \1
-(?i)JP(CHS|GB|SC)_JP(TC|BIG5|CHT) => 简繁日内封
-(?i)(CHS|GB|SC)(&|_|＆|\x20)(CHT|BIG5|TC)(&|_|＆|\x20)JA?PN? => 简繁日内封
-(?i)(CHS|GB|SC)_JA?PN?(&|＆|\x20)(CHT|BIG5|TC)_JA?PN? => 简繁日内封
+(?i)JP(CHS|GB|SC)_JP(TC|BIG5|CHT)|(CHS|GB|SC)(?:[_&＆\x20]JA?PN?)?[_&＆\x20](CHT|BIG5|TC)[_&＆\x20]JA?PN? => 简繁日内封
 (?i)(CHS|GB|SC)(&|＆|\x20)(CHT|BIG5|TC) => 简繁内封
-(?i)(CHS|GB|SC)(_|&|＆|\x20)JA?PN? => 简日双语
+(?i)(CHS|GB|SC)[_&＆\x20]JA?PN? => jpsc
+(?i)(CHT|BIG5|TC)[_&＆\x20]JA?PN? => jptc
 (?i)\[JA?PN?(_|&|＆|\x20)?(SC|CHS|GB)\] => [简日双语]
 (.*)(VCB-Studio)(.*)(Ma10p_?|Hi10p_?)(.*) => \1\2\3\5
 S(eason)? ?0?([2-9]) *\[(OVA|OAD)0?\(?(\d)?\)?\] => S0E\2\4
