@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MoviePilot 种子推送下载
 // @namespace    http://tampermonkey.net/
-// @version      4.5.1
+// @version      4.5.2
 // @description  在各大 PT 与动漫站点详情页自动提取种子名称与纯净副标题，发送至 MoviePilot 识别并一键推送下载、查询入库/播放直达、按季订阅与高级参数推送。适配 MoviePilot V2/V3，兼容桌面与 iOS Safari，支持自适应深浅色现代 UI。
 // @author       yubanmeiqin9048 & 虚静道长 & NEST
 // @match        https://*/details*.php*
@@ -1274,6 +1274,88 @@ safeAddStyle(`
   .mp-modal-body, .mp-results-container, .mp-cselect-menu {
     -webkit-overflow-scrolling: touch;
   }
+  /* 订阅弹窗优先级规则组多选区 */
+  .mp-rule-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .mp-rule-header label {
+    margin-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .mp-rule-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--mp-surface-2);
+    color: var(--mp-text-muted);
+    border: 1px solid var(--mp-border);
+  }
+  .mp-rule-badge.active {
+    background: var(--mp-primary-soft);
+    color: var(--mp-primary);
+    border-color: rgba(37, 99, 235, 0.35);
+    font-weight: 600;
+  }
+  .mp-rule-groups-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--mp-border);
+    background: var(--mp-surface);
+    min-height: 40px;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .mp-rule-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    font-family: var(--mp-font);
+    background: var(--mp-bg);
+    color: var(--mp-text);
+    border: 1px solid var(--mp-border-strong);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+    max-width: 100%;
+    word-break: break-word;
+  }
+  .mp-rule-chip:hover {
+    border-color: var(--mp-primary);
+    color: var(--mp-primary);
+  }
+  .mp-rule-chip.active {
+    background: var(--mp-primary-soft);
+    color: var(--mp-primary);
+    border-color: var(--mp-primary);
+    font-weight: 600;
+  }
+  .mp-rule-chip-check {
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.45;
+  }
+  .mp-rule-chip.active .mp-rule-chip-check {
+    opacity: 1;
+  }
 
   @media (max-width: 768px), (pointer: coarse) {
     .mp-input, .mp-select, .mp-textarea {
@@ -1290,6 +1372,11 @@ safeAddStyle(`
     }
     .mp-btn-lg {
       height: 40px;
+    }
+    .mp-rule-chip {
+      min-height: 34px;
+      padding: 6px 12px;
+      font-size: 13px;
     }
   }
 
@@ -1552,6 +1639,7 @@ let mpMTeamMutationWatcherState = {};
 let mpMTeamHtmlScanState = {};
 let mpCachedClients = null;
 let mpCachedPaths = null;
+let mpCachedFilterRuleGroups = null;
 let mpCachedSeasons = {};
 // 对齐 MoviePilot-Frontend v3/src/api/constants.ts 选项
 const MP_QUALITY_OPTIONS = [
@@ -2317,6 +2405,7 @@ function showConfigModal() {
         mpDefaultSavePath = '';
         mpCachedClients = null;
         mpCachedPaths = null;
+        mpCachedFilterRuleGroups = null;
         mpCachedSeasons = {};
         urlInput.value = '';
         keyInput.value = '';
@@ -2369,6 +2458,7 @@ function showConfigModal() {
                     mpDebug = Boolean(debugInput.checked);
                     mpMTeamAutoPrefetch = Boolean(prefetchInput.checked);
                     mpCachedPaths = null;
+                    mpCachedFilterRuleGroups = null;
 
                     mpStorageSet('mp_url', mpUrl);
                     mpStorageSet('mp_api_key', mpApiKey);
@@ -4236,6 +4326,31 @@ async function fetchDownloadPaths(force = false) {
     mpCachedPaths = res.ok && Array.isArray(res.data) ? res.data : [];
     return mpCachedPaths;
 }
+async function fetchFilterRuleGroups(force = false) {
+    if (mpCachedFilterRuleGroups && !force) return { items: mpCachedFilterRuleGroups, errorStatus: 0 };
+    const res = await mpApiRequest('/api/v1/system/setting/UserFilterRuleGroups');
+    if (!res.ok) {
+        return { items: [], errorStatus: res.status || 0 };
+    }
+    const rawVal = Array.isArray(res.data)
+        ? res.data
+        : (Array.isArray(res.data?.value) ? res.data.value : []);
+    const seen = new Set();
+    const items = [];
+    rawVal.forEach(entry => {
+        const name = String(typeof entry === 'string' ? entry : (entry?.name || '')).trim();
+        if (!name || seen.has(name)) return;
+        seen.add(name);
+        items.push({
+            name,
+            media_type: typeof entry === 'object' && entry?.media_type ? String(entry.media_type).trim() : '',
+            category: typeof entry === 'object' && entry?.category ? String(entry.category).trim() : ''
+        });
+    });
+    mpCachedFilterRuleGroups = items;
+    return { items, errorStatus: 0 };
+}
+
 
 async function fetchTmdbSeasons(tmdbId) {
     const id = String(tmdbId || '').replace(/[^\d]/g, '');
@@ -4422,6 +4537,9 @@ async function createSubscription(mediaInfo, options = {}) {
     if (options.exclude) body.exclude = options.exclude;
     if (options.downloader) body.downloader = options.downloader;
     if (options.save_path) body.save_path = options.save_path;
+    if (Array.isArray(options.filter_groups) && options.filter_groups.length > 0) {
+        body.filter_groups = options.filter_groups;
+    }
 
     const res = await mpApiRequest('/api/v1/subscribe/', { method: 'POST', data: body });
     return {
@@ -4837,6 +4955,16 @@ function openSubscribeModal(mediaInfo, detectedSeason = null, onSubscribed = nul
           <label for="mp-sub-exclude">排除关键词（可选正则）</label>
           <input type="text" class="mp-input" id="mp-sub-exclude" placeholder="如：CAM|TC|国语">
         </div>
+        <div class="mp-input-group" style="grid-column: 1 / -1;">
+          <div class="mp-rule-header">
+            <label>优先级规则组 <span class="mp-rule-badge" id="mp-sub-filter-count">使用系统默认</span></label>
+            <button type="button" class="mp-status-link" id="mp-sub-filter-clear" style="display:none;">清空选择</button>
+          </div>
+          <div class="mp-rule-groups-box" id="mp-sub-filter-groups">
+            <span class="mp-status-text"><span class="mp-spinner"></span> 正在加载优先级规则组...</span>
+          </div>
+          <p class="mp-help-text">可多选。不选择任何规则组时，将沿用 MoviePilot 默认订阅规则组。</p>
+        </div>
       </div>
 
       <div class="mp-switch-row" style="margin-top:12px;">
@@ -4887,6 +5015,69 @@ function openSubscribeModal(mediaInfo, detectedSeason = null, onSubscribed = nul
     }
 
     populateClientAndPathSelects(modal, dlSelect, pathSelect);
+    const filterBox = modal.querySelector('#mp-sub-filter-groups');
+    const filterCountEl = modal.querySelector('#mp-sub-filter-count');
+    const filterClearBtn = modal.querySelector('#mp-sub-filter-clear');
+    const selectedFilterGroups = [];
+
+    const syncFilterGroupHeader = () => {
+        if (filterCountEl) {
+            filterCountEl.textContent = selectedFilterGroups.length
+                ? `已选 ${selectedFilterGroups.length} 项`
+                : '使用系统默认';
+            filterCountEl.classList.toggle('active', selectedFilterGroups.length > 0);
+        }
+        if (filterClearBtn) {
+            filterClearBtn.style.display = selectedFilterGroups.length ? 'inline-block' : 'none';
+        }
+    };
+
+    filterClearBtn?.addEventListener('click', () => {
+        selectedFilterGroups.length = 0;
+        filterBox?.querySelectorAll('.mp-rule-chip.active').forEach(chip => {
+            chip.classList.remove('active');
+            chip.setAttribute('aria-pressed', 'false');
+        });
+        syncFilterGroupHeader();
+    });
+
+    if (filterBox) {
+        fetchFilterRuleGroups().then(({ items, errorStatus }) => {
+            if (!modal.isConnected) return;
+            if (!items.length) {
+                const emptyMsg = errorStatus === 401 || errorStatus === 403
+                    ? '当前 API Key 无权限读取规则组，提交时将沿用系统默认'
+                    : '暂未配置优先级规则组，提交时将沿用系统默认';
+                filterBox.innerHTML = `<span class="mp-status-text">${escapeHtml(emptyMsg)}</span>`;
+                return;
+            }
+            filterBox.innerHTML = '';
+            items.forEach(group => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'mp-rule-chip';
+                chip.dataset.name = group.name;
+                chip.setAttribute('aria-pressed', 'false');
+                const metaHint = [group.media_type, group.category].filter(Boolean).join(' · ');
+                chip.title = metaHint ? `${group.name} (${metaHint})` : group.name;
+                chip.innerHTML = `<span class="mp-rule-chip-check">✓</span><span>${escapeHtml(group.name)}</span>`;
+                chip.addEventListener('click', () => {
+                    const idx = selectedFilterGroups.indexOf(group.name);
+                    if (idx >= 0) {
+                        selectedFilterGroups.splice(idx, 1);
+                        chip.classList.remove('active');
+                        chip.setAttribute('aria-pressed', 'false');
+                    } else {
+                        selectedFilterGroups.push(group.name);
+                        chip.classList.add('active');
+                        chip.setAttribute('aria-pressed', 'true');
+                    }
+                    syncFilterGroupHeader();
+                });
+                filterBox.appendChild(chip);
+            });
+        });
+    }
     confirmBtn.addEventListener('click', async () => {
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<span class="mp-spinner"></span> 提交订阅...';
@@ -4900,12 +5091,14 @@ function openSubscribeModal(mediaInfo, detectedSeason = null, onSubscribed = nul
             save_path: pathSelect.value,
             include: modal.querySelector('#mp-sub-include').value.trim(),
             exclude: modal.querySelector('#mp-sub-exclude').value.trim(),
-            best_version: modal.querySelector('#mp-sub-best').checked
+            best_version: modal.querySelector('#mp-sub-best').checked,
+            filter_groups: selectedFilterGroups.slice()
         });
 
         if (result.success) {
             closeModal();
-            createToast('✅ 订阅成功', `已将《${mediaInfo.title}》${isTv && chosenSeason ? `第 ${chosenSeason} 季` : ''}加入订阅`, 'success', 3500);
+            const groupNote = selectedFilterGroups.length ? `（规则组：${selectedFilterGroups.join('、')}）` : '';
+            createToast('✅ 订阅成功', `已将《${mediaInfo.title}》${isTv && chosenSeason ? `第 ${chosenSeason} 季` : ''}加入订阅${groupNote}`, 'success', 3500);
             if (typeof onSubscribed === 'function') onSubscribed(chosenSeason);
         } else {
             confirmBtn.disabled = false;
