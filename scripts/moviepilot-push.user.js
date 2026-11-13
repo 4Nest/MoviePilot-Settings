@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         MoviePilot 种子推送下载
 // @namespace    http://tampermonkey.net/
-// @version      4.5.0
-// @description  在各大 PT 与动漫站点详情页自动提取种子名称与纯净副标题，发送至 MoviePilot 识别并一键推送下载、查询入库/播放直达、按季订阅与高级参数推送。适配 MoviePilot V2/V3，支持自适应深浅色现代 UI。
+// @version      4.5.1
+// @description  在各大 PT 与动漫站点详情页自动提取种子名称与纯净副标题，发送至 MoviePilot 识别并一键推送下载、查询入库/播放直达、按季订阅与高级参数推送。适配 MoviePilot V2/V3，兼容桌面与 iOS Safari，支持自适应深浅色现代 UI。
 // @author       yubanmeiqin9048 & 虚静道长 & NEST
 // @match        https://*/details*.php*
 // @match        https://totheglory.im/t/*
@@ -13,21 +13,54 @@
 // @match        https://sukebei.nyaa.si/view/*
 // @match        https://mikanani.me/Home/Episode/*
 // @match        https://*.skyey2.com/*
-// @match        https://*.m-team.cc/detail/*
-// @match        https://*.m-team.io/detail/*
+// @match        https://*.m-team.cc/*
+// @match        https://*.m-team.io/*
 // @match        https://sunnypt.top/*
 // @match        https://anibt.net/*
+// @run-at       document-end
 // @grant        GM_xmlhttpRequest
+// @grant        GM.xmlHttpRequest
 // @grant        GM_addStyle
 // @grant        GM_getValue
+// @grant        GM.getValue
 // @grant        GM_setValue
+// @grant        GM.setValue
 // @grant        GM_deleteValue
+// @grant        GM.deleteValue
 // @grant        GM_registerMenuCommand
+// @grant        GM.registerMenuCommand
 // @connect      *
 // @license      MIT
 // ==/UserScript==
 
-GM_addStyle(`
+function safeAddStyle(cssText) {
+  const injectFallbackStyle = () => {
+    if (document.getElementById('mp-injected-style')) return;
+    const style = document.createElement('style');
+    style.id = 'mp-injected-style';
+    style.type = 'text/css';
+    style.textContent = cssText;
+    const target = document.head || document.documentElement || document.body;
+    if (target) {
+      target.appendChild(style);
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (!document.getElementById('mp-injected-style')) {
+          (document.head || document.documentElement || document.body)?.appendChild(style);
+        }
+      }, { once: true });
+    }
+  };
+  try {
+    if (typeof GM_addStyle === 'function') {
+      GM_addStyle(cssText);
+      return;
+    }
+  } catch (e) {}
+  injectFallbackStyle();
+}
+
+safeAddStyle(`
   :root {
     --mp-bg: #ffffff;
     --mp-surface: #f8fafc;
@@ -1197,18 +1230,311 @@ GM_addStyle(`
   .mp-toast:hover .mp-toast-progress {
     animation-play-state: paused !important;
   }
+
+  /* 未配置时的轻量悬浮入口（方便 iOS Safari 等无菜单扩展快速进入设置） */
+  .mp-floating-cfg-btn {
+    position: fixed;
+    right: 18px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    z-index: 99998;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--mp-border-strong);
+    background: var(--mp-toast-bg);
+    color: var(--mp-text);
+    font-family: var(--mp-font);
+    font-size: 12.5px;
+    font-weight: 600;
+    box-shadow: var(--mp-toast-shadow);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .mp-floating-cfg-btn:hover {
+    border-color: var(--mp-primary);
+    color: var(--mp-primary);
+    transform: translateY(-1px);
+  }
+
+  /* 触控与 iOS Safari 移动端适配 */
+  .mp-btn, .mp-tag-btn, .mp-chip, .mp-close, .mp-cselect-trigger, .mp-cselect-option, .mp-toggle {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mp-modal {
+    overscroll-behavior: contain;
+  }
+  .mp-modal-body, .mp-results-container, .mp-cselect-menu {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-width: 768px), (pointer: coarse) {
+    .mp-input, .mp-select, .mp-textarea {
+      font-size: 16px;
+      min-height: 40px;
+    }
+    .mp-cselect-trigger {
+      font-size: 14px;
+      min-height: 40px;
+    }
+    .mp-cselect-option {
+      min-height: 38px;
+      font-size: 14px;
+    }
+    .mp-btn-lg {
+      height: 40px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .mp-modal {
+      padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+      align-items: flex-end;
+    }
+    .mp-modal-content, .mp-modal-content.mp-modal-wide {
+      max-width: 100%;
+      max-height: 88vh;
+      max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px));
+      border-radius: 16px;
+    }
+    .mp-modal-header {
+      padding: 13px 16px;
+    }
+    .mp-modal-body {
+      padding: 14px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+    .mp-result-item {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .mp-result-actions {
+      width: 100%;
+      flex-direction: row;
+      justify-content: flex-end;
+      margin-top: 2px;
+    }
+    .mp-result-actions .mp-btn {
+      flex: 1;
+    }
+    #mp-toast-container {
+      left: 12px;
+      right: 12px;
+      bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+      align-items: stretch;
+      max-width: none;
+    }
+    .mp-toast {
+      width: 100%;
+      max-width: 100%;
+    }
+    .mp-mteam-panel {
+      padding: 10px 12px;
+    }
+    .mp-inline-bar {
+      gap: 6px;
+    }
+  }
 `);
 
+// ---------- GM_* / GM.* 跨管理器兼容层（含 iOS Safari Userscripts / Stay） ----------
+function hasSyncGmGet() { return typeof GM_getValue === 'function'; }
+function hasAsyncGmGet() { return typeof GM !== 'undefined' && typeof GM.getValue === 'function'; }
+
+function isPromiseLike(v) {
+    return Boolean(v && (typeof v === 'object' || typeof v === 'function') && typeof v.then === 'function');
+}
+
+function mpStorageGetSync(key, defaultValue) {
+    if (hasSyncGmGet()) {
+        try {
+            const v = GM_getValue(key, defaultValue);
+            if (!isPromiseLike(v) && v !== undefined && v !== null) return v;
+        } catch (e) {}
+    }
+    if (!hasAsyncGmGet()) {
+        try {
+            const raw = window.localStorage?.getItem(`__mp_cfg_${key}`);
+            if (raw !== null && raw !== undefined) return JSON.parse(raw);
+        } catch (e) {}
+    }
+    return defaultValue;
+}
+
+async function mpStorageGetAsync(key, defaultValue) {
+    if (hasAsyncGmGet()) {
+        try {
+            const v = await GM.getValue(key, undefined);
+            if (v !== undefined && v !== null) return v;
+        } catch (e) {}
+    }
+    if (hasSyncGmGet()) {
+        try {
+            const v = GM_getValue(key, undefined);
+            if (isPromiseLike(v)) {
+                const awaited = await v;
+                if (awaited !== undefined && awaited !== null) return awaited;
+            } else if (v !== undefined && v !== null) {
+                return v;
+            }
+        } catch (e) {}
+    }
+    return mpStorageGetSync(key, defaultValue);
+}
+
+function mpStorageSet(key, value) {
+    let written = false;
+    if (typeof GM_setValue === 'function') {
+        try {
+            GM_setValue(key, value);
+            written = true;
+        } catch (e) {}
+    }
+    if (typeof GM !== 'undefined' && typeof GM.setValue === 'function') {
+        try {
+            Promise.resolve(GM.setValue(key, value)).catch(() => {});
+            written = true;
+        } catch (e) {}
+    }
+    if (!written) {
+        try {
+            window.localStorage?.setItem(`__mp_cfg_${key}`, JSON.stringify(value));
+        } catch (e) {}
+    }
+}
+
+function mpStorageDelete(key) {
+    if (typeof GM_deleteValue === 'function') {
+        try { GM_deleteValue(key); } catch (e) {}
+    }
+    if (typeof GM !== 'undefined' && typeof GM.deleteValue === 'function') {
+        try { Promise.resolve(GM.deleteValue(key)).catch(() => {}); } catch (e) {}
+    }
+    try { window.localStorage?.removeItem(`__mp_cfg_${key}`); } catch (e) {}
+}
+
+function safeRegisterMenuCommand(title, handler) {
+    try {
+        if (typeof GM_registerMenuCommand === 'function') {
+            return GM_registerMenuCommand(title, handler);
+        }
+        if (typeof GM !== 'undefined' && typeof GM.registerMenuCommand === 'function') {
+            return GM.registerMenuCommand(title, handler);
+        }
+    } catch (e) {}
+    return null;
+}
+
+function mpGmRequest(options) {
+    const opts = Object.assign({}, options || {});
+    const xhrFn = (typeof GM_xmlhttpRequest === 'function')
+        ? GM_xmlhttpRequest
+        : ((typeof GM !== 'undefined' && typeof GM.xmlHttpRequest === 'function')
+            ? GM.xmlHttpRequest.bind(GM)
+            : null);
+    if (!xhrFn) {
+        if (typeof opts.onerror === 'function') {
+            opts.onerror({ status: 0, responseText: 'GM_xmlhttpRequest / GM.xmlHttpRequest 不可用' });
+        }
+        return null;
+    }
+
+    let settled = false;
+    const origOnload = opts.onload;
+    const origOnerror = opts.onerror;
+    const origOntimeout = opts.ontimeout;
+
+    const fireLoad = (res) => {
+        if (settled) return;
+        settled = true;
+        if (typeof origOnload === 'function') origOnload(res);
+    };
+    const fireError = (err) => {
+        if (settled) return;
+        settled = true;
+        if (typeof origOnerror === 'function') origOnerror(err);
+    };
+    const fireTimeout = (err) => {
+        if (settled) return;
+        settled = true;
+        if (typeof origOntimeout === 'function') origOntimeout(err);
+    };
+
+    opts.onload = fireLoad;
+    opts.onerror = fireError;
+    opts.ontimeout = fireTimeout;
+
+    try {
+        const ret = xhrFn(opts);
+        if (ret && typeof ret.then === 'function') {
+            ret.then((res) => {
+                if (res && typeof res === 'object') fireLoad(res);
+            }, (err) => {
+                fireError(err || { status: 0, responseText: 'Request rejected' });
+            });
+        }
+        return ret;
+    } catch (e) {
+        fireError({ status: 0, responseText: e?.message || 'GM request failed' });
+        return null;
+    }
+}
+
+function isTouchOrSmallViewport() {
+    try {
+        return Boolean(
+            (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
+            || (window.innerWidth && window.innerWidth <= 768)
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
 // ---------- 全局配置与运行时状态 ----------
-let mpUrl = String(GM_getValue('mp_url', '') || '').replace(/\/+$/, '');
-let mpApiKey = String(GM_getValue('mp_api_key', '') || '').trim();
-let mpDebug = Boolean(GM_getValue('mp_debug', false));
-let mpMTeamAutoPrefetch = Boolean(GM_getValue('mp_mteam_prefetch', true));
-let mpThemeMode = GM_getValue('mp_theme_mode', 'auto'); // 'auto' | 'light' | 'dark'
-let mpShowSpecs = Boolean(GM_getValue('mp_show_specs', true));
-let mpSubAutoFillSpecs = Boolean(GM_getValue('mp_sub_auto_fill_specs', false));
-let mpDefaultDownloader = GM_getValue('mp_default_downloader', '');
-let mpDefaultSavePath = GM_getValue('mp_default_save_path', '');
+let mpUrl = String(mpStorageGetSync('mp_url', '') || '').replace(/\/+$/, '');
+let mpApiKey = String(mpStorageGetSync('mp_api_key', '') || '').trim();
+let mpDebug = Boolean(mpStorageGetSync('mp_debug', false));
+let mpMTeamAutoPrefetch = Boolean(mpStorageGetSync('mp_mteam_prefetch', true));
+let mpThemeMode = mpStorageGetSync('mp_theme_mode', 'auto'); // 'auto' | 'light' | 'dark'
+let mpShowSpecs = Boolean(mpStorageGetSync('mp_show_specs', true));
+let mpSubAutoFillSpecs = Boolean(mpStorageGetSync('mp_sub_auto_fill_specs', false));
+let mpDefaultDownloader = mpStorageGetSync('mp_default_downloader', '');
+let mpDefaultSavePath = mpStorageGetSync('mp_default_save_path', '');
+let mpConfigInitPromise = null;
+
+function initMpConfig() {
+    if (mpConfigInitPromise) return mpConfigInitPromise;
+    mpConfigInitPromise = (async () => {
+        const [url, apiKey, dbg, prefetch, theme, specs, subAutoFill, dl, savePath] = await Promise.all([
+            mpStorageGetAsync('mp_url', mpUrl),
+            mpStorageGetAsync('mp_api_key', mpApiKey),
+            mpStorageGetAsync('mp_debug', mpDebug),
+            mpStorageGetAsync('mp_mteam_prefetch', mpMTeamAutoPrefetch),
+            mpStorageGetAsync('mp_theme_mode', mpThemeMode),
+            mpStorageGetAsync('mp_show_specs', mpShowSpecs),
+            mpStorageGetAsync('mp_sub_auto_fill_specs', mpSubAutoFillSpecs),
+            mpStorageGetAsync('mp_default_downloader', mpDefaultDownloader),
+            mpStorageGetAsync('mp_default_save_path', mpDefaultSavePath)
+        ]);
+        mpUrl = String(url || '').replace(/\/+$/, '');
+        mpApiKey = String(apiKey || '').trim();
+        mpDebug = Boolean(dbg);
+        mpMTeamAutoPrefetch = Boolean(prefetch);
+        mpThemeMode = theme || 'auto';
+        mpShowSpecs = Boolean(specs);
+        mpSubAutoFillSpecs = Boolean(subAutoFill);
+        mpDefaultDownloader = dl || '';
+        mpDefaultSavePath = savePath || '';
+    })().catch(() => {});
+    return mpConfigInitPromise;
+}
 let mpUidCounter = 0;
 let mpMountSeq = 0;
 let mpLastMTeamBtnLogKey = '';
@@ -1309,7 +1635,7 @@ function inferSubscribePresetFromTorrent(torrentName = '', metaInfo = {}, torren
 
     let effect = '';
     let effectLabel = '';
-    if (/(?:Dolby\s*Vision|\bDOVI\b|(?<![A-Za-z0-9])DV(?![A-Za-z0-9]|D))/i.test(normalized)) {
+    if (/(?:Dolby\s*Vision|\bDOVI\b|(?:^|[^A-Za-z0-9])DV(?![A-Za-z0-9]|D))/i.test(normalized)) {
         effect = MP_EFFECT_OPTIONS[1].value;
         effectLabel = MP_EFFECT_OPTIONS[1].title;
     } else if (/(?:Dolby\s*\+?\s*Atmos|\bAtmos\b)/i.test(normalized)) {
@@ -1428,7 +1754,7 @@ function applyThemeClass(el) {
 
 function refreshAllThemes() {
     const dark = isDarkThemePage();
-    document.querySelectorAll('.mp-inline-bar, .mp-mteam-panel, .mp-anime-panel, .mp-modal, #mp-toast-container').forEach(el => {
+    document.querySelectorAll('.mp-inline-bar, .mp-mteam-panel, .mp-anime-panel, .mp-modal, #mp-toast-container, .mp-floating-cfg-btn').forEach(el => {
         el.classList.toggle('mp-dark', dark);
     });
 }
@@ -1460,14 +1786,17 @@ function requestWithGuard(options) {
         }
         return;
     }
-    GM_xmlhttpRequest(options);
+    mpGmRequest(options);
 }
 
 // V3 统一响应包装 {success, message, data}，V2 为裸数据；此处解包并兼容两者
 function unwrapResponse(res) {
     try {
         let body = res && res.response;
-        if (body === undefined && res && res.responseText) {
+        if (typeof body === 'string') {
+            try { body = JSON.parse(body); } catch (e) {}
+        }
+        if ((body === undefined || body === null) && res && res.responseText) {
             try { body = JSON.parse(res.responseText); } catch (e) {}
         }
         if (body && typeof body === 'object' && !Array.isArray(body)
@@ -1482,7 +1811,10 @@ function unwrapResponse(res) {
 
 function extractErrorMessage(res) {
     let body = res && res.response;
-    if (body === undefined && res && res.responseText) {
+    if (typeof body === 'string') {
+        try { body = JSON.parse(body); } catch (e) {}
+    }
+    if ((body === undefined || body === null) && res && res.responseText) {
         try { body = JSON.parse(res.responseText); } catch (e) {}
     }
     if (body && typeof body === 'object') {
@@ -1975,10 +2307,10 @@ function showConfigModal() {
     };
 
     clearBtn.addEventListener('click', () => {
-        GM_deleteValue('mp_url');
-        GM_deleteValue('mp_api_key');
-        GM_deleteValue('mp_default_downloader');
-        GM_deleteValue('mp_default_save_path');
+        mpStorageDelete('mp_url');
+        mpStorageDelete('mp_api_key');
+        mpStorageDelete('mp_default_downloader');
+        mpStorageDelete('mp_default_save_path');
         mpUrl = '';
         mpApiKey = '';
         mpDefaultDownloader = '';
@@ -2012,7 +2344,7 @@ function showConfigModal() {
         saveBtn.innerHTML = '<span class="mp-spinner"></span> 正在验证...';
         showStatus('正在连接 MoviePilot 验证接口与下载器列表...', 'info');
 
-        GM_xmlhttpRequest({
+        mpGmRequest({
             method: 'GET',
             url: `${url}/api/v1/user/current`,
             headers: { 'X-Api-Key': apiKey, 'Accept': 'application/json' },
@@ -2038,15 +2370,15 @@ function showConfigModal() {
                     mpMTeamAutoPrefetch = Boolean(prefetchInput.checked);
                     mpCachedPaths = null;
 
-                    GM_setValue('mp_url', mpUrl);
-                    GM_setValue('mp_api_key', mpApiKey);
-                    GM_setValue('mp_theme_mode', mpThemeMode);
-                    GM_setValue('mp_default_downloader', mpDefaultDownloader);
-                    GM_setValue('mp_default_save_path', mpDefaultSavePath);
-                    GM_setValue('mp_show_specs', mpShowSpecs);
-                    GM_setValue('mp_sub_auto_fill_specs', mpSubAutoFillSpecs);
-                    GM_setValue('mp_debug', mpDebug);
-                    GM_setValue('mp_mteam_prefetch', mpMTeamAutoPrefetch);
+                    mpStorageSet('mp_url', mpUrl);
+                    mpStorageSet('mp_api_key', mpApiKey);
+                    mpStorageSet('mp_theme_mode', mpThemeMode);
+                    mpStorageSet('mp_default_downloader', mpDefaultDownloader);
+                    mpStorageSet('mp_default_save_path', mpDefaultSavePath);
+                    mpStorageSet('mp_show_specs', mpShowSpecs);
+                    mpStorageSet('mp_sub_auto_fill_specs', mpSubAutoFillSpecs);
+                    mpStorageSet('mp_debug', mpDebug);
+                    mpStorageSet('mp_mteam_prefetch', mpMTeamAutoPrefetch);
 
                     refreshAllThemes();
 
@@ -2075,7 +2407,10 @@ function showConfigModal() {
             onerror: () => {
                 saveBtn.disabled = false;
                 saveBtn.textContent = '验证并保存';
-                showStatus('❌ 无法连接到服务器，请检查地址是否可达或混合内容限制', 'error');
+                const extraHint = (window.location.protocol === 'https:' && /^http:\/\//i.test(url))
+                    ? '\n提示：iOS Safari 在 HTTPS 页面访问内网 HTTP 时，请确认已开启脚本扩展“本地网络”权限，或改用 HTTPS 反代地址'
+                    : '';
+                showStatus(`❌ 无法连接到服务器，请检查地址是否可达或混合内容限制${extraHint}`, 'error');
             },
             ontimeout: () => {
                 saveBtn.disabled = false;
@@ -2094,14 +2429,16 @@ function showConfigModal() {
             }
         });
     });
-    setTimeout(() => urlInput.focus(), 30);
+    if (!isTouchOrSmallViewport()) {
+        setTimeout(() => urlInput.focus(), 30);
+    }
 }
 
-// 注册油猴菜单栏命令
-GM_registerMenuCommand("⚙️ 设置 MoviePilot 账号", showConfigModal);
-GM_registerMenuCommand("🧪 切换调试日志", () => {
+// 注册油猴菜单栏命令（仅在管理器支持时注册）
+safeRegisterMenuCommand("⚙️ 设置 MoviePilot 账号", showConfigModal);
+safeRegisterMenuCommand("🧪 切换调试日志", () => {
     mpDebug = !mpDebug;
-    GM_setValue('mp_debug', mpDebug);
+    mpStorageSet('mp_debug', mpDebug);
     createToast("调试日志设置", `调试日志已${mpDebug ? '开启' : '关闭'}`, "info", 3000);
 });
 
@@ -2559,6 +2896,7 @@ function cleanupMpUi(options = {}) {
         }
     }
     document.querySelectorAll('.mp-modal').forEach(el => el.remove());
+    document.getElementById('mp-floating-cfg-btn')?.remove();
     if (!options.keepToast) {
         let toast = document.getElementById('mp-toast-container');
         if (toast) toast.remove();
@@ -3128,7 +3466,7 @@ function fetchMTeamTorrentDetail(tid, timeoutMs = 2400) {
             resolve(val);
         };
         setTimeout(() => done(null), timeoutMs);
-        GM_xmlhttpRequest({
+        mpGmRequest({
             method: 'POST',
             url: `${apiBase}/api/torrent/detail`,
             headers,
@@ -3323,7 +3661,9 @@ function installMTeamPageContextHook() {
       } catch (e) {}
     })();
   `;
-    (document.documentElement || document.head || document.body).appendChild(script);
+    try {
+        (document.documentElement || document.head || document.body)?.appendChild(script);
+    } catch (e) {}
 }
 
 function triggerMTeamPrefetchMode(durationMs = 5000) {
@@ -4986,10 +5326,12 @@ function openManualModal(row, type, torrentName, torrentDesc, downloadLink, torr
     if (defaultQuery) {
         doSearch(defaultQuery);
     }
-    setTimeout(() => {
-        inputEl.focus();
-        inputEl.select();
-    }, 30);
+    if (!isTouchOrSmallViewport()) {
+        setTimeout(() => {
+            inputEl.focus();
+            inputEl.select();
+        }, 30);
+    }
 }
 
 // ---------- 页面 DOM 解析核心 ----------
@@ -5282,7 +5624,7 @@ function sunnyPTApiRequest(path, method = 'GET', token = '', timeoutMs = 4000) {
             resolve({ status: 401, data: null });
             return;
         }
-        GM_xmlhttpRequest({
+        mpGmRequest({
             method,
             url: `https://api.sunnypt.top${path}`,
             headers: {
@@ -5613,6 +5955,23 @@ function processRecognition(row, type, t_name, t_desc, d_link, t_size) {
     let configChecked = false;
     let lastUrl = window.location.href;
     let checkTimer = null;
+    let observerStarted = false;
+
+    const ensureFloatingConfigButton = () => {
+        if (mpUrl && mpApiKey) {
+            document.getElementById('mp-floating-cfg-btn')?.remove();
+            return;
+        }
+        if (document.getElementById('mp-floating-cfg-btn')) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = 'mp-floating-cfg-btn';
+        btn.className = 'mp-floating-cfg-btn';
+        applyThemeClass(btn);
+        btn.textContent = '⚙️ 配置 MoviePilot';
+        btn.addEventListener('click', showConfigModal);
+        document.body?.appendChild(btn);
+    };
 
     const runCheck = () => {
         if (window.location.href !== lastUrl) {
@@ -5623,7 +5982,7 @@ function processRecognition(row, type, t_name, t_desc, d_link, t_size) {
         }
 
         if (!shouldProcessCurrentPage()) {
-            if (document.getElementById('mp-row-flag') || document.querySelector('.mp-modal') || document.getElementById('mp-toast-container')) {
+            if (document.getElementById('mp-row-flag') || document.querySelector('.mp-modal') || document.getElementById('mp-toast-container') || document.getElementById('mp-floating-cfg-btn')) {
                 debugLog('cleanup on unsupported page', window.location.href);
                 cleanupMpUi();
             }
@@ -5632,6 +5991,7 @@ function processRecognition(row, type, t_name, t_desc, d_link, t_size) {
         }
 
         if (!mpUrl || !mpApiKey) {
+            ensureFloatingConfigButton();
             if (!configChecked && !document.getElementById('mp-config-modal')) {
                 showConfigModal();
                 configChecked = true;
@@ -5639,6 +5999,7 @@ function processRecognition(row, type, t_name, t_desc, d_link, t_size) {
             return;
         }
 
+        document.getElementById('mp-floating-cfg-btn')?.remove();
         if (!document.getElementById('mp-row-flag')) {
             insertMpRow();
         }
@@ -5653,19 +6014,24 @@ function processRecognition(row, type, t_name, t_desc, d_link, t_size) {
         }, 250);
     };
 
-    const observer = new MutationObserver(() => {
-        if (window.location.href !== lastUrl || !document.getElementById('mp-row-flag')) {
-            scheduleCheck();
+    const startRuntime = () => {
+        if (!observerStarted) {
+            observerStarted = true;
+            const observer = new MutationObserver(() => {
+                if (window.location.href !== lastUrl || !document.getElementById('mp-row-flag')) {
+                    scheduleCheck();
+                }
+            });
+            const observeRoot = document.body || document.documentElement;
+            if (observeRoot) {
+                observer.observe(observeRoot, { childList: true, subtree: true });
+            }
+            window.addEventListener('popstate', scheduleCheck);
+            window.addEventListener('hashchange', scheduleCheck);
+            setInterval(runCheck, 3000);
         }
-    });
+        runCheck();
+    };
 
-    const observeRoot = document.body || document.documentElement;
-    if (observeRoot) {
-        observer.observe(observeRoot, { childList: true, subtree: true });
-    }
-    window.addEventListener('popstate', scheduleCheck);
-    window.addEventListener('hashchange', scheduleCheck);
-
-    runCheck();
-    setInterval(runCheck, 3000);
+    initMpConfig().then(startRuntime);
 })();
