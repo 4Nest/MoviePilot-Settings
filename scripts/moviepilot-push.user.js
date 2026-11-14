@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         MoviePilot 种子推送下载
 // @namespace    http://tampermonkey.net/
-// @version      4.5.4
+// @version      4.5.5
 // @description  在各大 PT 与动漫站点详情页自动提取种子名称与纯净副标题，发送至 MoviePilot 识别并一键推送下载、查询入库/播放直达、按季订阅与高级参数推送。适配 MoviePilot V2/V3，兼容桌面与 iOS Safari，支持自适应深浅色现代 UI 与纯矢量图标。
 // @author       yubanmeiqin9048 & 虚静道长 & NEST
 // @match        https://*/details*.php*
+// @match        https://u2.dmhy.org/details*.php*
 // @match        https://totheglory.im/t/*
 // @match        https://bangumi.moe/torrent/*
 // @match        https://*.acgnx.se/show-*
@@ -1127,6 +1128,7 @@ function escapeHtmlAttr(value) {
 
 function cleanText(value) {
   return String(value || "")
+    .replace(/[\u00AD\u200B-\u200D\uFEFF]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -2070,7 +2072,7 @@ function cleanSubtitleText(rawText) {
   if (!rawText) return "";
 
   let raw = String(rawText)
-    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/[\u00AD\u200B-\u200D\uFEFF]/g, "")
     .replace(/\[checked\s+by\s+[^\]]*\]/gi, " ")
     .replace(/\bautoup\b/gi, " ");
 
@@ -2212,15 +2214,114 @@ function extractCleanSubtitle(cell) {
 }
 
 const ANIME_TECH_TOKEN_RE =
-  /^(?:BDMV|BDRip|TVRip|DVDRip|DVDISO|BDISO|BD-?BOX|BOX|Remux|WEB-?DL|WEBRip|HDTV|Movie|TV|OVA|OAD|OAV|SP|Special|Fin|Batch|Complete|4320p|2160p|1080[pi]|720[pi]|576[pi]|480[pi]|4K|UHD|AVC|HEVC|H\.?26[45]|x26[45]|10bit|8bit|Ma10p|Hi10p|FLAC|LPCM|PCM|AAC|AC3|EAC3|DDP|DTS(?:-?HD)?|TrueHD|Atmos|MKV|MP4|GB|BIG5|CHS|CHT|JPSC|JPTC|简繁|简体|繁体|中字|双语|内封|外挂|内嵌|JPN|JP|ENG|EN|R2J.*|Vol\.?\d+|Disc\.?\d+|S\d{1,2}(?:E\d{1,3})?|\d{1,3}(?:[-~]\d{1,3})?(?:Fin|END|全集)?|v\d+|(?:19|20)\d{2}(?:[-.](?:19|20)\d{2})?)$/i;
+  /^(?:BDMV|BDRip|TVRip|DVDRip|DVDISO|BDISO|BD-?BOX|BOX|Remux|WEB-?DL|WEBRip|HDTV|Movie|TV|OVA|OAD|OAV|SP|Special|Fin|Batch|Complete|4320p|2160p|1080[pi]|720[pi]|576[pi]|480[pi]|\d{3,4}[x×]\d{3,4}|4K|UHD|AVC|HEVC|H\.?26[45]|x26[45]|10bit|8bit|Ma10p|Hi10p|(?:FLAC|LPCM|PCM|AAC|AC3|EAC3|DDP|DTS(?:-?HD)?|TrueHD|Atmos)(?:[x×]\d+)?|MKV|MP4|GB|BIG5|CHS|CHT|JPSC|JPTC|简繁|简体|繁体|中字|双语|内封|外挂|内嵌|JPN|JP|ENG|EN|R2J.*|Vol\.?\d+(?:[-~]\d+)?|Disc\.?\d+|S\d{1,2}(?:E\d{1,3})?|\d{1,3}(?:[-~]\d{1,3})?(?:Fin|END|全集)?|v\d+|(?:19|20)\d{2}(?:[-.](?:19|20)\d{2})?)$/i;
+
+const NON_GROUP_TAIL_BRACKET_RE =
+  /^(?:自压|自壓|自购|自購|搬运|搬運|整理|合集|全集|完结|完結|修正|招募|未删减|無修|无修|简繁|简体|繁体|双语|雙語|国语|國語|粤语|粵語|日语|日語|中字|内封|外挂|内嵌)$/i;
+
+function isTechBracketSegment(innerText) {
+  const t = cleanText(innerText);
+  if (!t) return true;
+  if (ANIME_TECH_TOKEN_RE.test(t)) return true;
+  if (
+    /^(?:TV|Movie|OVA|OAD|OAV|SP)(?:[\s+_/-]*(?:\d{1,3}(?:[-~]\d{1,3})?(?:\s*Fin)?|Special|SP|CD|OVA|Fin|Complete))+$/i.test(
+      t,
+    )
+  ) {
+    return true;
+  }
+  const words = t.split(/[\s._+/&-]+/).filter(Boolean);
+  return words.length > 0 && words.every((w) => ANIME_TECH_TOKEN_RE.test(w));
+}
 
 function isReleaseGroupOrTagBracket(innerText) {
   const t = cleanText(innerText);
   if (!t) return true;
-  if (ANIME_TECH_TOKEN_RE.test(t)) return true;
+  if (isTechBracketSegment(t)) return true;
+  if (NON_GROUP_TAIL_BRACKET_RE.test(t)) return true;
   // 如 "[VCB-Studio]"、"[ANi]"、"[LoliHouse]"、"[新番]"、"[Baha]"、"[Lilith-Raws]"
   if (/^[A-Za-z0-9._-]+(?:-[A-Za-z0-9._-]+)*$/.test(t) && !/\s/.test(t) && t.length <= 24) return true;
-  if (/(?:字幕组|字幕社|压制|发布|Raws|Sub|Fansub|Studio|Web|Rip|搬运)/i.test(t)) return true;
+  if (/(?:字幕组|字幕社|压制组|壓制組|发布组|發布組|工作室|Raws|Sub|Fansub|Studio|Rip)/i.test(t)) return true;
+  return false;
+}
+
+function splitMultiBracketAnimeTitle(rawTitle) {
+  const text = cleanText(rawTitle).replace(/\.(?:torrent|mkv|mp4|avi|ts|m2ts|flv|wmv)$/i, "");
+  const bracketMatches = [];
+  const re = /[\[【]([^\]】]{1,120})[\]】]/g;
+  let m;
+  let cursor = 0;
+  let contiguous = true;
+  while ((m = re.exec(text)) !== null) {
+    if (text.slice(cursor, m.index).trim()) {
+      contiguous = false;
+      break;
+    }
+    bracketMatches.push(cleanText(m[1]));
+    cursor = m.index + m[0].length;
+  }
+  if (!contiguous || bracketMatches.length < 2 || text.slice(cursor).trim()) {
+    return null;
+  }
+
+  let idx = 0;
+  let leadingGroup = "";
+  if (isReleaseGroupOrTagBracket(bracketMatches[0]) && !isTechBracketSegment(bracketMatches[0])) {
+    leadingGroup = bracketMatches[0];
+    idx = 1;
+  }
+
+  const titleParts = [];
+  while (idx < bracketMatches.length) {
+    const seg = bracketMatches[idx];
+    if (isTechBracketSegment(seg) || NON_GROUP_TAIL_BRACKET_RE.test(seg)) break;
+    titleParts.push(seg);
+    idx++;
+  }
+  if (!titleParts.length) return null;
+
+  const restParts = bracketMatches.slice(idx);
+  const hasTechBracket = restParts.some((seg) => isTechBracketSegment(seg));
+  if (!hasTechBracket) return null;
+
+  let tailGroup = "";
+  let specBrackets = restParts.slice();
+  if (specBrackets.length >= 2) {
+    const lastSeg = specBrackets[specBrackets.length - 1];
+    if (
+      lastSeg &&
+      lastSeg.length <= 32 &&
+      !isTechBracketSegment(lastSeg) &&
+      !NON_GROUP_TAIL_BRACKET_RE.test(lastSeg)
+    ) {
+      tailGroup = lastSeg;
+      specBrackets.pop();
+    }
+  }
+  specBrackets = specBrackets.filter((seg) => !NON_GROUP_TAIL_BRACKET_RE.test(seg));
+
+  return {
+    leadingGroup,
+    titleParts,
+    specBrackets,
+    tailGroup,
+  };
+}
+
+function shouldKeepLeadingBracketAsTitle(rawTitle, firstInner) {
+  const inner = cleanText(firstInner);
+  if (!inner || isReleaseGroupOrTagBracket(inner)) return false;
+  if (isU2Site()) return true;
+  if (
+    /[,，:：!！?？♪☆♡～~《》「」]/.test(inner) ||
+    /第\s*\d+\s*[季部期]|\b(?:Season\s*\d+|\d+(?:st|nd|rd|th)\s+Season|Live\s+Event|TV\s+Special)\b/i.test(inner)
+  ) {
+    return true;
+  }
+  const multi = splitMultiBracketAnimeTitle(rawTitle);
+  if (multi && !multi.leadingGroup && multi.titleParts.length >= 2) {
+    return true;
+  }
   return false;
 }
 
@@ -2230,13 +2331,12 @@ function extractBracketTitleCandidates(rawTitle) {
   matches.forEach((m, idx) => {
     const inner = cleanText(m.slice(1, -1));
     if (!inner) return;
-    if (idx === 0 && isReleaseGroupOrTagBracket(inner)) return;
-    if (ANIME_TECH_TOKEN_RE.test(inner)) return;
-    const words = inner.split(/[\s._+/&-]+/).filter(Boolean);
-    if (words.length > 0 && words.every((w) => ANIME_TECH_TOKEN_RE.test(w))) return;
-    // 含中文/日文，或含空格的非纯技术英文标题，极可能是片名
-    if (/[\u4e00-\u9fa5\u3040-\u30ff]/.test(inner) || /\s+/.test(inner)) {
-      if (!/(?:字幕|内封|外挂|简繁|双语|国语|粤语|日语|音轨|合集|全集|完结|第\d+季)/i.test(inner)) {
+    if (idx === 0 && !shouldKeepLeadingBracketAsTitle(rawTitle, inner) && isReleaseGroupOrTagBracket(inner)) return;
+    if (idx === 0 && !shouldKeepLeadingBracketAsTitle(rawTitle, inner)) return;
+    if (isTechBracketSegment(inner) || NON_GROUP_TAIL_BRACKET_RE.test(inner)) return;
+    // 含中文/日文，或含空格的非纯技术英文标题，或 U2 多括号片名段
+    if (/[\u4e00-\u9fa5\u3040-\u30ff]/.test(inner) || /\s+/.test(inner) || isU2Site()) {
+      if (!/(?:字幕|内封|外挂|简繁|双语|国语|粤语|日语|音轨|合集|全集|完结)/i.test(inner)) {
         addUnique(results, inner);
       }
     }
@@ -2253,18 +2353,29 @@ function extractReleaseTeam(rawTitle) {
     .trim();
   if (!title) return "";
 
+  const multi = splitMultiBracketAnimeTitle(title);
+  if (multi) {
+    return multi.leadingGroup || multi.tailGroup || "";
+  }
+
   const lead = title.match(/^\s*(?:\[([^\]]{1,40})\]|【([^】]{1,40})】)/);
   if (lead) {
     const inner = cleanText(lead[1] || lead[2] || "");
     const nonGroupLeadRe =
-      /^(?:\d+(?:[-~]\d+)?(?:Fin|End|完结)?|(?:\d{1,2}月)?新番|合集|连载|完结|整理|搬运|转自|招募|自购|自压|简繁|简体|繁体|双语|国语|粤语|中字)$/i;
-    if (inner && inner.length <= 36 && !ANIME_TECH_TOKEN_RE.test(inner) && !nonGroupLeadRe.test(inner)) {
+      /^(?:\d+(?:[-~]\d+)?(?:Fin|End|完结)?|(?:\d{1,2}月)?新番|合集|连载|完结|整理|搬运|转自|招募|自购|自压|自壓|简繁|简体|繁体|双语|国语|粤语|中字)$/i;
+    if (
+      inner &&
+      inner.length <= 36 &&
+      !isTechBracketSegment(inner) &&
+      !nonGroupLeadRe.test(inner) &&
+      !shouldKeepLeadingBracketAsTitle(title, inner)
+    ) {
       return inner;
     }
   }
 
   const techRe =
-    /\b(?:4320p|2160p|1080[pi]|720[pi]|480[pi]|WEB-?DL|WEBRip|Blu-?Ray|BDRip|Remux|HDTV|DVDRip|H\.?26[45]|x26[45]|HEVC|AVC|AV1|AAC|AC3|EAC3|DDP|DTS(?:-?HD)?|FLAC|OPUS|LPCM|TrueHD|Atmos|HDR10?\+?|DoVi|DV|10bit|8bit)\b/gi;
+    /\b(?:4320p|2160p|1080[pi]|720[pi]|480[pi]|\d{3,4}[x×]\d{3,4}|WEB-?DL|WEBRip|Blu-?Ray|BDRip|Remux|HDTV|DVDRip|H\.?26[45]|x26[45]|HEVC|AVC|AV1|AAC|AC3|EAC3|DDP|DTS(?:-?HD)?|FLAC(?:x\d+)?|OPUS|LPCM|TrueHD|Atmos|HDR10?\+?|DoVi|DV|10bit|8bit)\b/gi;
   let lastTechEnd = -1;
   let m;
   while ((m = techRe.exec(title)) !== null) {
@@ -2272,6 +2383,13 @@ function extractReleaseTeam(rawTitle) {
   }
   if (lastTechEnd > 0) {
     const tail = title.slice(lastTechEnd);
+    const tailBracket = tail.match(/\[([^\]]{2,32})\]\s*$/);
+    if (tailBracket) {
+      const bTeam = cleanText(tailBracket[1] || "");
+      if (bTeam && !isTechBracketSegment(bTeam) && !NON_GROUP_TAIL_BRACKET_RE.test(bTeam)) {
+        return bTeam;
+      }
+    }
     const tailMatch =
       tail.match(/(?:[-–]\s*([A-Za-z0-9][A-Za-z0-9._@]{1,28}))\s*$/) ||
       tail.match(/\s+@([A-Za-z0-9][A-Za-z0-9._]{1,24})\s*$/);
@@ -2292,14 +2410,14 @@ function normalizeTorrentTitle(rawTitle) {
 
   title = title.replace(/\.torrent$/i, "").replace(/\.(mkv|mp4|avi|ts|m2ts|flv|wmv)$/i, "");
 
-  // 只剥离明显属于发布组/技术标签/年份的前导括号，避免把全括号片名剥成空串
+  // 只剥离明显属于发布组/技术标签/年份的前导括号，避免把全括号片名（如 U2 首段中文片名）剥成残串
   for (let i = 0; i < 4; i++) {
-    const m = title.match(/^\s*(?:\[([^\]]{1,36})\]|\(([^)]{1,36})\)|【([^】]{1,36})】|<([^>]{1,36})>)(?:[\s._-]*|$)/);
+    const m = title.match(/^\s*(?:\[([^\]]{1,60})\]|\(([^)]{1,60})\)|【([^】]{1,60})】|<([^>]{1,60})>)(?:[\s._-]*|$)/);
     if (!m) break;
     const inner = m[1] || m[2] || m[3] || m[4] || "";
     const rest = title.slice(m[0].length).trim();
     if (!rest) break;
-    if (i === 0 || isReleaseGroupOrTagBracket(inner)) {
+    if ((i === 0 && !shouldKeepLeadingBracketAsTitle(rawTitle, inner)) || isReleaseGroupOrTagBracket(inner)) {
       title = rest;
     } else {
       break;
@@ -2319,7 +2437,7 @@ function normalizeTorrentTitle(rawTitle) {
 
   title = title.replace(/[._]+/g, " ");
   let noisyPart = title.match(
-    /\b(?:4320p|2160p|1080p|720p|480p|web[-\s]?dl|webrip|bluray|bdrip|hdtv|dvdrip|remux|h\.?26[45]|x26[45]|hevc|avc|aac(?:\d\.\d)?|ddp?\d(?:\.\d)?|dts(?:-hd)?|atmos|hdr10\+?|dolby[\s-]?vision|10bit|8bit)\b/i,
+    /\b(?:4320p|2160p|1080p|720p|480p|\d{3,4}[x×]\d{3,4}|web[-\s]?dl|webrip|bluray|bdrip|bdmv|hdtv|dvdrip|dvdiso|remux|h\.?26[45]|x26[45]|hevc|avc|aac(?:\d\.\d)?|ddp?\d(?:\.\d)?|dts(?:-hd)?|atmos|hdr10\+?|dolby[\s-]?vision|10bit|8bit)\b/i,
   );
   if (noisyPart && noisyPart.index > 0) {
     let cutIdx = noisyPart.index;
@@ -2398,8 +2516,13 @@ function getCurrentSunnyPTTid() {
   return m ? m[1] : "";
 }
 
+function isU2Site() {
+  return window.location.hostname.toLowerCase() === "u2.dmhy.org";
+}
+
 function isAnimeSiteHost() {
   const h = window.location.hostname.toLowerCase();
+  if (h === "u2.dmhy.org") return false;
   return /(^|\.)nyaa\.si$|(^|\.)dmhy\.org$|(^|\.)mikanani\.me$|(^|\.)bangumi\.moe$|(^|\.)acgnx\.se$|(^|\.)anibt\.net$/.test(
     h,
   );
@@ -2410,6 +2533,7 @@ function shouldProcessCurrentPage() {
   const p = window.location.pathname;
   if (isMTeamHost()) return isMTeamDetailPage();
   if (isSunnyPTSite()) return isSunnyPTDetailPage();
+  if (isU2Site()) return /^\/details[^/]*\.php$/i.test(p);
   if (/(^|\.)nyaa\.si$/.test(h)) return /^\/view\/\d+/.test(p);
   if (/(^|\.)dmhy\.org$/.test(h)) return /^\/topics\/view\//.test(p);
   if (/(^|\.)mikanani\.me$/.test(h)) return /^\/Home\/Episode\//i.test(p);
@@ -2597,7 +2721,25 @@ function extractSubtitleCandidates(subtitle) {
   return results.slice(0, 8);
 }
 
-function getRecognitionCandidates(rawTitle, subtitle = "") {
+function extractPageTorrentFileHint() {
+  if (!isU2Site()) return "";
+  try {
+    const rows = document.querySelectorAll(".rowhead");
+    const dlCell = findRowFollowByHeader(rows, /^(?:下载|下載|Download)$/i);
+    const torrentAnchor = dlCell?.querySelector('a.index[href*="download.php"], a[href*="download.php"]');
+    const rawName = cleanText(torrentAnchor?.textContent || "")
+      .replace(/^\[U2\]\.?\s*/i, "")
+      .replace(/\.torrent$/i, "")
+      .replace(/\.(?:mkv|mp4|avi|ts|m2ts|iso)$/i, "")
+      .trim();
+    return rawName.length >= 4 ? rawName : "";
+  } catch (e) {
+    return "";
+  }
+}
+
+function getRecognitionCandidates(rawTitle, subtitle = "", options = {}) {
+  const forManualChips = Boolean(options?.forManualChips);
   let candidates = [];
   let addCandidate = (title) => {
     let val = String(title || "")
@@ -2614,19 +2756,49 @@ function getRecognitionCandidates(rawTitle, subtitle = "") {
   let withoutEpisode = stripEpisodeInfo(normalized);
   let slashAlias = normalized.split(/\s*\/\s*/)[0].trim();
   let hasTvPattern =
-    /\bS\d{1,2}(?:E\d{1,3})?\b/i.test(normalized) ||
-    /\bE\d{1,3}(?:\s*[-~]\s*E?\d{1,3})?\b/i.test(normalized) ||
-    /第\s*\d+(?:\s*[-~]\s*\d+)?\s*[季集期话話]/.test(normalized);
+    /\bS\d{1,2}(?:E\d{1,3})?\b/i.test(cleanedRaw) ||
+    /\bE\d{1,3}(?:\s*[-~]\s*E?\d{1,3})?\b/i.test(cleanedRaw) ||
+    /\bTV\s+\d{1,3}(?:\s*[-~]\s*\d{1,3})?/i.test(cleanedRaw) ||
+    /第\s*\d+(?:\s*[-~]\s*\d+)?\s*[季集期话話]/.test(cleanedRaw);
 
-  addCandidate(cleanedRaw);
+  const multi = splitMultiBracketAnimeTitle(cleanedRaw);
+  if (multi && multi.titleParts.length >= 1) {
+    // 优先中日文标题，英文/罗马音次之，避免 MoviePilot 将首段方括号误吞为字幕组
+    const orderedTitles = multi.titleParts.slice().sort((a, b) => {
+      const scoreLang = (s) => (/[\u4e00-\u9fa5]/.test(s) ? 0 : /[\u3040-\u30ff]/.test(s) ? 1 : 2);
+      return scoreLang(a) - scoreLang(b);
+    });
+    const specSuffix = multi.specBrackets.map((s) => `[${s}]`).join("");
+    if (!forManualChips && specSuffix) {
+      orderedTitles.forEach((part) => {
+        addCandidate(`${part} ${specSuffix}`);
+      });
+    }
+    orderedTitles.forEach((part) => {
+      addCandidate(part);
+      const strippedPart = stripEpisodeInfo(part);
+      if (strippedPart && strippedPart !== part) addCandidate(strippedPart);
+    });
+  }
+
+  if (!forManualChips) {
+    addCandidate(cleanedRaw);
+  }
   addCandidate(normalized);
   addCandidate(slashAlias);
   addCandidate(withoutEpisode);
   extractBracketTitleCandidates(cleanedRaw).forEach(addCandidate);
   extractSubtitleCandidates(subtitle).forEach(addCandidate);
 
+  const torrentFileHint = extractPageTorrentFileHint();
+  if (torrentFileHint) {
+    if (!forManualChips) addCandidate(torrentFileHint);
+    const normHint = normalizeTorrentTitle(torrentFileHint);
+    if (normHint) addCandidate(normHint);
+  }
+
   if (!hasTvPattern) {
-    let yearMatch = normalized.match(/\b(?:19|20)\d{2}\b/);
+    let yearMatch = (normalized + " " + torrentFileHint).match(/\b(?:19|20)\d{2}\b/);
     if (yearMatch) {
       let year = yearMatch[0];
       let noYear = normalized
@@ -2635,14 +2807,14 @@ function getRecognitionCandidates(rawTitle, subtitle = "") {
         .replace(/\s+/g, " ")
         .trim();
       addCandidate(noYear);
-      if (noYear) {
+      if (noYear && !forManualChips) {
         addCandidate(`${noYear} ${year}`);
         addCandidate(`${noYear} (${year})`);
       }
     }
   }
 
-  return candidates.slice(0, 10);
+  return candidates.slice(0, 12);
 }
 
 function findRowFollowByHeader(rows, headerRegex) {
@@ -2665,14 +2837,27 @@ function extractNexusDownloadLink(rows) {
     } catch (e) {}
   }
 
-  const directPasskeyAnchor = document.querySelector(
-    'a[href*="download.php?"][href*="downhash="], a[href*="download.php?"][href*="passkey="]',
-  );
-  if (directPasskeyAnchor?.href) return directPasskeyAnchor.href;
-
   const dlCell = findRowFollowByHeader(rows, /^(?:下载|下載|种子链接|種子鏈接|下载链接|下載鏈接|Download)$/i);
+  const dlPasskeyAnchor = dlCell?.querySelector(
+    'a[href*="download.php?"][href*="downhash="], a[href*="download.php?"][href*="passkey="][href*="https=1"], a[href*="download.php?"][href*="passkey="]',
+  );
+  if (dlPasskeyAnchor?.href) return dlPasskeyAnchor.href;
+
+  const currentId = new URLSearchParams(window.location.search).get("id") || "";
+  const allPasskeyAnchors = Array.from(
+    document.querySelectorAll('a[href*="download.php?"][href*="downhash="], a[href*="download.php?"][href*="passkey="]'),
+  );
+  const matchedPasskeyAnchor =
+    (currentId &&
+      allPasskeyAnchors.find((a) => new RegExp(`[?&]id=${currentId}(?:&|$)`).test(a.getAttribute("href") || ""))) ||
+    allPasskeyAnchors[0];
+  if (matchedPasskeyAnchor?.href) return matchedPasskeyAnchor.href;
+
   const dlAnchor =
-    dlCell?.querySelector('a[href*="download.php"], a.index, a[href*=".torrent"]') ||
+    dlCell?.querySelector('a[href*="download.php"]:not([href*="zip=1"]), a.index, a[href*=".torrent"]') ||
+    (currentId
+      ? document.querySelector(`a[href*="download.php?id=${currentId}"]:not([href*="zip=1"])`)
+      : null) ||
     document.querySelector(
       'a.index[href*="download.php"], a[href*="download.php?id="], a[href*="download.php"], a[href*=".torrent"]',
     ) ||
@@ -2726,40 +2911,77 @@ function extractPageTorrentMeta() {
       .match(/\d+/);
     return m ? parseInt(m[0], 10) : 0;
   };
-  const seeders = parseCount(document.getElementById("seeders"));
-  const peers = parseCount(document.getElementById("leechers"));
-  const grabs = parseCount(document.querySelector('a[href*="viewsnatches.php"]'));
+  const rows = document.querySelectorAll(".rowhead");
+  const currentId = new URLSearchParams(window.location.search).get("id") || "";
+  let seeders = parseCount(document.getElementById("seeders"));
+  let peers = parseCount(document.getElementById("leechers"));
+  if (!seeders && !peers) {
+    const peerCell =
+      document.getElementById("peercount") ||
+      findRowFollowByHeader(rows, /^(?:同伴|Peers)\b/i);
+    const peerTxt = cleanText(peerCell?.textContent || "");
+    const sm = peerTxt.match(/(\d+)\s*(?:个?做种者|個?做種者|seeders?)/i);
+    const lm = peerTxt.match(/(\d+)\s*(?:个?下载者|個?下載者|leechers?)/i);
+    if (sm) seeders = parseInt(sm[1], 10);
+    if (lm) peers = parseInt(lm[1], 10);
+  }
+  const snatchAnchor =
+    (currentId ? document.querySelector(`a[href*="viewsnatches.php?id=${currentId}"]`) : null) ||
+    (!isU2Site() ? document.querySelector('a[href*="viewsnatches.php"]') : null);
+  let grabs = parseCount(snatchAnchor);
+  if (!grabs && isU2Site()) {
+    const trafficCell = findRowFollowByHeader(rows, /^(?:热度表|熱度表|Traffic)$/i);
+    const gm = cleanText(trafficCell?.textContent || "").match(/(?:完成|Snatched)\s*[:：]\s*(\d+)/i);
+    if (gm) grabs = parseInt(gm[1], 10);
+  }
 
   let uploadvolumefactor = 1;
   let downloadvolumefactor = 1;
   let volume_factor = "普通";
   const h1 = document.querySelector("h1#top") || document.querySelectorAll("h1")[0];
-  if (h1) {
-    if (h1.querySelector('font.twoupfree, [class*="pro_free2up"]')) {
+  const promoCell = findRowFollowByHeader(rows, /^(?:流量优惠|流量優惠|促销|促銷|Promotion)$/i);
+  const detectPromoScope = (scope) => {
+    if (!scope) return false;
+    if (scope.querySelector('font.twoupfree, [class*="pro_free2up"]')) {
       uploadvolumefactor = 2;
       downloadvolumefactor = 0;
       volume_factor = "2X免费";
-    } else if (h1.querySelector('font.free, [class*="pro_free"]')) {
+      return true;
+    }
+    if (scope.querySelector('font.free, [class*="pro_free"]')) {
       uploadvolumefactor = 1;
       downloadvolumefactor = 0;
       volume_factor = "免费";
-    } else if (h1.querySelector('font.twouphalfdown, [class*="pro_50pctdown2up"]')) {
+      return true;
+    }
+    if (scope.querySelector('font.twouphalfdown, [class*="pro_50pctdown2up"]')) {
       uploadvolumefactor = 2;
       downloadvolumefactor = 0.5;
       volume_factor = "2X 50%";
-    } else if (h1.querySelector('font.halfdown, [class*="pro_50pctdown"]')) {
+      return true;
+    }
+    if (scope.querySelector('font.halfdown, [class*="pro_50pctdown"]')) {
       uploadvolumefactor = 1;
       downloadvolumefactor = 0.5;
       volume_factor = "50%";
-    } else if (h1.querySelector('font.thirtypercent, [class*="pro_30pctdown"]')) {
+      return true;
+    }
+    if (scope.querySelector('font.thirtypercent, [class*="pro_30pctdown"]')) {
       uploadvolumefactor = 1;
       downloadvolumefactor = 0.3;
       volume_factor = "30%";
-    } else if (h1.querySelector('font.twoup, [class*="pro_2up"]')) {
+      return true;
+    }
+    if (scope.querySelector('font.twoup, [class*="pro_2up"]')) {
       uploadvolumefactor = 2;
       downloadvolumefactor = 1;
       volume_factor = "2X";
+      return true;
     }
+    return false;
+  };
+  if (!detectPromoScope(h1)) {
+    detectPromoScope(promoCell);
   }
 
   return {
@@ -4692,7 +4914,15 @@ function buildHtml(row, mediaInfo, type, torrentName, torrentDesc, downloadLink,
     if (safeMeta.resource_pix) specsGroupHtml += renderTag(safeMeta.resource_pix, "mp-tag-spec mp-tag-pix");
     if (safeMeta.video_encode) specsGroupHtml += renderTag(safeMeta.video_encode, "mp-tag-spec");
     if (safeMeta.audio_encode) specsGroupHtml += renderTag(safeMeta.audio_encode, "mp-tag-spec");
-    const releaseTeam = cleanText(safeMeta.resource_team || "") || extractReleaseTeam(torrentName);
+    const multiParsed = splitMultiBracketAnimeTitle(torrentName);
+    const rawMetaTeam = cleanText(safeMeta.resource_team || "");
+    const isMetaTeamActuallyTitle =
+      rawMetaTeam &&
+      (rawMetaTeam === cleanText(mediaInfo.title || "") ||
+        rawMetaTeam === cleanText(mediaInfo.original_title || "") ||
+        Boolean(multiParsed?.titleParts?.includes(rawMetaTeam)) ||
+        NON_GROUP_TAIL_BRACKET_RE.test(rawMetaTeam));
+    const releaseTeam = (!isMetaTeamActuallyTitle ? rawMetaTeam : "") || extractReleaseTeam(torrentName);
     if (releaseTeam) specsGroupHtml += renderTag(releaseTeam, "mp-tag-team", "制作组 / 发布组");
   }
 
@@ -4879,7 +5109,7 @@ function mountBuiltHtml(row, type, built) {
 function openManualModal(row, type, torrentName, torrentDesc, downloadLink, torrentSize, metaInfo = {}) {
   const cleanDesc = cleanSubtitleText(torrentDesc || "");
   const rawCleaned = cleanRawHeadingText(torrentName || "");
-  const allCandidates = getRecognitionCandidates(torrentName, cleanDesc);
+  const allCandidates = getRecognitionCandidates(torrentName, cleanDesc, { forManualChips: true });
   const chipCandidates = allCandidates.filter((c) => c !== rawCleaned);
   const finalChips = (chipCandidates.length ? chipCandidates : allCandidates).slice(0, 6);
   const defaultQuery = finalChips[0] || "";
@@ -5375,7 +5605,10 @@ function mountMpPanel(anchorEl, type, panelClass, titleText, contentId, info) {
 }
 
 function extractNexusSiteInfo(rows) {
-  const subtitleCell = findRowFollowByHeader(rows, /^(?:副标题|副標題|小标题|小標題|Small\s*Description)$/i);
+  const subtitleCell = findRowFollowByHeader(
+    rows,
+    /^(?:副标题|副標題|小标题|小標題|补充说明|補充說明|Small\s*Description|Subtitle)$/i,
+  );
   const basicInfoCell = findRowFollowByHeader(rows, /^(?:基本信息|基本資訊|大小|尺寸|Basic\s*Info|Size)$/i);
   let torrent_name = extractCleanHeadingTitle();
   let download_link = "";
@@ -5417,7 +5650,9 @@ function extractNexusSiteInfo(rows) {
     const fallbackSubCell =
       !subtitleCell &&
       rows[1] &&
-      !/^(?:基本信息|基本資訊|大小|Basic\s*Info)$/i.test(cleanText(rows[1].textContent || ""))
+      !/^(?:基本信息|基本資訊|大小|尺寸|发布人|發布人|上载者|上傳者|种子文件|種子文件|下载|下載|操作|行为|行為|流量优惠|流量優惠|自动通过警告|自動通過警告|Basic\s*Info|Size|Uploader|Author|Download|Action|Actions)$/i.test(
+        cleanText(rows[1].textContent || ""),
+      )
         ? rows[1].nextElementSibling
         : null;
     torrent_description = extractCleanSubtitle(subtitleCell || fallbackSubCell);
