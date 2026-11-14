@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MoviePilot 种子推送下载
 // @namespace    http://tampermonkey.net/
-// @version      4.5.3
+// @version      4.5.4
 // @description  在各大 PT 与动漫站点详情页自动提取种子名称与纯净副标题，发送至 MoviePilot 识别并一键推送下载、查询入库/播放直达、按季订阅与高级参数推送。适配 MoviePilot V2/V3，兼容桌面与 iOS Safari，支持自适应深浅色现代 UI 与纯矢量图标。
 // @author       yubanmeiqin9048 & 虚静道长 & NEST
 // @match        https://*/details*.php*
@@ -67,27 +67,286 @@ const MP_STYLE_TEXT =
 
 
 const MP_THEME_AND_LINK_PATCH_CSS = `
+  /* ==========================================================================
+   * shadcn/ui (New York + Zinc/Slate) 高对比度不透明语义色盘
+   * 彻底消除灰蓝/浅灰站点表格底色下的半透明发灰发脏现象，保持克制现代秩序感
+   * ========================================================================== */
+  :root {
+    --mp-bg: #ffffff;
+    --mp-surface: #f8fafc;
+    --mp-surface-2: #f1f5f9;
+    --mp-surface-hover: #e2e8f0;
+    --mp-border: #cbd5e1;
+    --mp-border-strong: #94a3b8;
+    --mp-text: #09090b;
+    --mp-text-muted: #475569;
+    --mp-primary: #2563eb;
+    --mp-primary-hover: #1d4ed8;
+  }
+
+  .mp-mteam-panel,
+  .mp-anime-panel {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  }
+
+  .mp-inline-bar {
+    row-gap: 6px;
+    column-gap: 8px;
+  }
+  .mp-group-media,
+  .mp-group-specs,
+  .mp-group-status,
+  .mp-group-actions {
+    gap: 5px;
+  }
+
+  /* 亮色模式：100% 不透明实色表面 + shadcn shadow-xs 微立体投影 + 高锐度前景 */
+  .mp-tag,
+  button.mp-tag {
+    appearance: none;
+    -webkit-appearance: none;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  }
+
+  /* 1) 核心媒体身份：shadcn Zinc-900 曜石黑主锚点 + 纯白高光片名卡 */
+  .mp-tag-type,
+  .mp-inline-bar a.mp-tag-type,
+  a.mp-tag-type {
+    background: #18181b;
+    color: #fafafa !important;
+    border-color: #18181b;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 1px 2px rgba(9, 9, 11, 0.16);
+  }
+  .mp-tag-title {
+    background: #ffffff;
+    color: #09090b;
+    border-color: #94a3b8;
+    font-weight: 700;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.07);
+  }
+  .mp-tag-year {
+    background: #ffffff;
+    color: #334155;
+    border-color: #cbd5e1;
+    font-weight: 600;
+  }
+  .mp-tag-season {
+    background: #f0fdfa;
+    color: #0f766e;
+    border-color: #99f6e4;
+    font-weight: 700;
+  }
+  .mp-tag-tmdb,
+  .mp-inline-bar a.mp-tag-tmdb,
+  .mp-inline-bar a.mp-tag-tmdb:visited,
+  a.mp-tag-tmdb,
+  a.mp-tag-tmdb:visited {
+    background: #f0f9ff;
+    color: #0369a1 !important;
+    border-color: #bae6fd;
+    font-weight: 600;
+  }
+  .mp-tag-tmdb:hover,
+  .mp-inline-bar a.mp-tag-tmdb:hover,
+  a.mp-tag-tmdb:hover {
+    background: #e0f2fe;
+    border-color: #38bdf8;
+    color: #075985 !important;
+    filter: none;
+  }
+
+  /* 2) 技术规格与制作组：克制纯粹的精密白底钢线铭牌 + 丁香紫制作组 */
+  .mp-tag-spec {
+    background: #ffffff;
+    color: #1e293b;
+    border-color: #cbd5e1;
+    font-weight: 600;
+  }
+  .mp-tag-spec.mp-tag-pix {
+    background: #f8fafc;
+    color: #09090b;
+    border-color: #94a3b8;
+    font-weight: 700;
+  }
+  .mp-tag-team {
+    background: #f5f3ff;
+    color: #5b21b6 !important;
+    border-color: #c4b5fd;
+    font-weight: 700;
+  }
+
+  /* 3) 入库与订阅状态：翡翠绿 / 清晰虚线白槽 / 琥珀金 / 冰蓝待订阅 */
+  .mp-tag-loading,
+  .mp-tag-missing {
+    background: #ffffff;
+    color: #475569;
+    border: 1px dashed #94a3b8;
+    font-weight: 600;
+  }
+  .mp-tag-exists,
+  button.mp-tag-exists,
+  .mp-inline-bar a.mp-tag-exists,
+  .mp-inline-bar a.mp-tag-exists:visited,
+  a.mp-tag-exists,
+  a.mp-tag-exists:visited {
+    background: #ecfdf5;
+    color: #047857 !important;
+    border-color: #6ee7b7;
+    font-weight: 700;
+  }
+  .mp-tag-exists:hover,
+  button.mp-tag-exists:hover,
+  .mp-inline-bar a.mp-tag-exists:hover,
+  a.mp-tag-exists:hover {
+    background: #d1fae5;
+    border-color: #34d399;
+    color: #065f46 !important;
+    filter: none;
+  }
+  .mp-tag-sub-on,
+  .mp-tag-sub-busy {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fcd34d;
+    font-weight: 700;
+  }
+  .mp-btn-split.mp-btn-split-sub {
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+  }
+  .mp-tag-sub-btn,
+  button.mp-tag-sub-btn {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #93c5fd;
+    font-weight: 600;
+    box-shadow: none;
+  }
+  .mp-btn-split .mp-tag-sub-btn {
+    background: transparent;
+  }
+  .mp-btn-split .mp-tag-sub-btn.mp-tag-split-care {
+    border-left: 1px solid #bfdbfe;
+  }
+  .mp-tag-sub-btn:hover,
+  button.mp-tag-sub-btn:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb;
+  }
+  .mp-btn-split.mp-btn-split-sub-err {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+  }
+  .mp-tag-sub-err,
+  button.mp-tag-sub-err {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+    font-weight: 600;
+    box-shadow: none;
+  }
+  .mp-btn-split .mp-tag-sub-err {
+    background: transparent;
+  }
+  .mp-btn-split .mp-tag-sub-err.mp-tag-split-care {
+    border-left: 1px solid #fecaca;
+  }
+  .mp-tag-sub-err:hover,
+  button.mp-tag-sub-err:hover {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #dc2626;
+  }
+
+  /* 4) 操作按钮：shadcn 实色微高光主按钮 + 纯白清晰描边次按钮 */
+  .mp-btn-split {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1);
+  }
+  .mp-btn-primary {
+    background: #2563eb;
+    color: #ffffff !important;
+    border-color: #1d4ed8;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(37, 99, 235, 0.22);
+  }
+  .mp-btn-split .mp-btn-primary {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+  .mp-btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+    border-color: #1e40af;
+  }
+  .mp-btn-success {
+    background: #16a34a;
+    color: #ffffff !important;
+    border-color: #15803d;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(22, 163, 74, 0.22);
+  }
+  .mp-btn-success:hover:not(:disabled) {
+    background: #15803d;
+  }
+  .mp-btn-danger {
+    background: #dc2626;
+    color: #ffffff !important;
+    border-color: #b91c1c;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(220, 38, 38, 0.22);
+  }
+  .mp-btn-danger:hover:not(:disabled) {
+    background: #b91c1c;
+  }
+  .mp-btn-secondary {
+    background: #ffffff;
+    color: #09090b;
+    border-color: #94a3b8;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  }
+  .mp-btn-secondary:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: #2563eb;
+    color: #1d4ed8;
+  }
+  .mp-btn-icon {
+    background: #ffffff;
+    color: #334155;
+    border-color: #94a3b8;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  }
+  .mp-btn-icon:hover:not(:disabled) {
+    background: #f8fafc;
+    color: #09090b;
+    border-color: #475569;
+  }
+
+  /* ==========================================================================
+   * 暗色模式 (.mp-dark)：shadcn Zinc-950 / Slate-900 深邃暗夜高对比方案
+   * ========================================================================== */
   .mp-dark {
-    --mp-bg: #161b22;
-    --mp-panel-bg: #1c222d;
-    --mp-surface: #1e2530;
-    --mp-surface-2: #262f3d;
-    --mp-surface-hover: #303b4c;
-    --mp-border: rgba(255, 255, 255, 0.12);
-    --mp-border-strong: rgba(255, 255, 255, 0.20);
-    --mp-text: #f1f5f9;
+    --mp-bg: #0f141b;
+    --mp-panel-bg: #161d27;
+    --mp-surface: #1b2432;
+    --mp-surface-2: #232e3f;
+    --mp-surface-hover: #2c3a4f;
+    --mp-border: rgba(148, 163, 184, 0.22);
+    --mp-border-strong: rgba(148, 163, 184, 0.36);
+    --mp-text: #f8fafc;
     --mp-text-muted: #94a3b8;
-    --mp-primary: #60a5fa;
-    --mp-primary-hover: #3b82f6;
-    --mp-primary-soft: rgba(37, 99, 235, 0.24);
+    --mp-primary: #3b82f6;
+    --mp-primary-hover: #60a5fa;
+    --mp-primary-soft: rgba(59, 130, 246, 0.22);
     --mp-success: #4ade80;
     --mp-success-hover: #22c55e;
-    --mp-success-soft: rgba(22, 163, 74, 0.22);
+    --mp-success-soft: rgba(16, 185, 129, 0.22);
     --mp-danger: #f87171;
     --mp-danger-hover: #ef4444;
-    --mp-danger-soft: rgba(220, 38, 38, 0.22);
+    --mp-danger-soft: rgba(239, 68, 68, 0.22);
     --mp-warning: #fbbf24;
-    --mp-warning-soft: rgba(217, 119, 6, 0.22);
+    --mp-warning-soft: rgba(245, 158, 11, 0.22);
     --mp-info-soft: rgba(14, 165, 233, 0.22);
     --mp-info-text: #7dd3fc;
   }
@@ -95,48 +354,176 @@ const MP_THEME_AND_LINK_PATCH_CSS = `
   .mp-dark.mp-anime-panel,
   .mp-dark .mp-modal-header {
     background: var(--mp-panel-bg);
+    border-color: var(--mp-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  }
+  .mp-dark .mp-tag,
+  .mp-dark button.mp-tag {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  }
+  /* 暗色行首主锚点：shadcn Dark 标志性反白胶囊 */
+  .mp-dark .mp-tag-type,
+  .mp-dark.mp-inline-bar a.mp-tag-type,
+  .mp-dark a.mp-tag-type {
+    background: #f4f4f5;
+    color: #09090b !important;
+    border-color: #f4f4f5;
+    font-weight: 700;
+  }
+  .mp-dark .mp-tag-title {
+    background: #1e293b;
+    color: #f8fafc;
+    border-color: #475569;
+  }
+  .mp-dark .mp-tag-year {
+    background: #18202c;
+    color: #cbd5e1;
+    border-color: #334155;
+  }
+  .mp-dark .mp-tag-season {
+    background: rgba(20, 184, 166, 0.16);
+    color: #5eead4;
+    border-color: rgba(45, 212, 191, 0.38);
+  }
+  .mp-dark .mp-tag-tmdb,
+  .mp-dark.mp-inline-bar a.mp-tag-tmdb,
+  .mp-dark.mp-inline-bar a.mp-tag-tmdb:visited,
+  .mp-dark a.mp-tag-tmdb,
+  .mp-dark a.mp-tag-tmdb:visited {
+    background: rgba(14, 165, 233, 0.16);
+    color: #7dd3fc !important;
+    border-color: rgba(56, 189, 248, 0.38);
+  }
+  .mp-dark .mp-tag-tmdb:hover,
+  .mp-dark.mp-inline-bar a.mp-tag-tmdb:hover,
+  .mp-dark a.mp-tag-tmdb:hover {
+    background: rgba(14, 165, 233, 0.28);
+    border-color: #38bdf8;
+    color: #bae6fd !important;
+    filter: none;
+  }
+  .mp-dark .mp-tag-spec {
+    background: #18202c;
+    color: #e2e8f0;
+    border-color: #334155;
+  }
+  .mp-dark .mp-tag-spec.mp-tag-pix {
+    background: #232f40;
+    color: #ffffff;
+    border-color: #64748b;
+  }
+  .mp-dark .mp-tag-team {
+    background: rgba(139, 92, 246, 0.2);
+    color: #ddd6fe !important;
+    border-color: rgba(167, 139, 250, 0.42);
+  }
+  .mp-dark .mp-tag-loading,
+  .mp-dark .mp-tag-missing {
+    background: #18202c;
+    color: #94a3b8;
+    border: 1px dashed #475569;
+  }
+  .mp-dark .mp-tag-exists,
+  .mp-dark button.mp-tag-exists,
+  .mp-dark.mp-inline-bar a.mp-tag-exists,
+  .mp-dark.mp-inline-bar a.mp-tag-exists:visited,
+  .mp-dark a.mp-tag-exists,
+  .mp-dark a.mp-tag-exists:visited {
+    background: rgba(16, 185, 129, 0.18);
+    color: #6ee7b7 !important;
+    border-color: rgba(52, 211, 153, 0.42);
+  }
+  .mp-dark .mp-tag-exists:hover,
+  .mp-dark button.mp-tag-exists:hover,
+  .mp-dark.mp-inline-bar a.mp-tag-exists:hover,
+  .mp-dark a.mp-tag-exists:hover {
+    background: rgba(16, 185, 129, 0.28);
+    border-color: #34d399;
+    color: #a7f3d0 !important;
+    filter: none;
+  }
+  .mp-dark .mp-tag-sub-on,
+  .mp-dark .mp-tag-sub-busy {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fde68a;
+    border-color: rgba(251, 191, 36, 0.42);
+  }
+  .mp-dark .mp-btn-split.mp-btn-split-sub {
+    background: rgba(37, 99, 235, 0.2);
+    border: 1px solid rgba(96, 165, 250, 0.44);
+  }
+  .mp-dark .mp-tag-sub-btn,
+  .mp-dark button.mp-tag-sub-btn {
+    background: rgba(37, 99, 235, 0.2);
+    color: #93c5fd;
+    border-color: rgba(96, 165, 250, 0.44);
+    box-shadow: none;
+  }
+  .mp-dark .mp-btn-split .mp-tag-sub-btn {
+    background: transparent;
+  }
+  .mp-dark .mp-btn-split .mp-tag-sub-btn.mp-tag-split-care {
+    border-left: 1px solid rgba(96, 165, 250, 0.34);
+  }
+  .mp-dark .mp-tag-sub-btn:hover,
+  .mp-dark button.mp-tag-sub-btn:hover {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #3b82f6;
+  }
+  .mp-dark .mp-btn-split.mp-btn-split-sub-err {
+    background: rgba(239, 68, 68, 0.18);
+    border: 1px solid rgba(248, 113, 113, 0.44);
+  }
+  .mp-dark .mp-tag-sub-err,
+  .mp-dark button.mp-tag-sub-err {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+    border-color: rgba(248, 113, 113, 0.44);
+    box-shadow: none;
+  }
+  .mp-dark .mp-btn-split .mp-tag-sub-err {
+    background: transparent;
+  }
+  .mp-dark .mp-btn-split .mp-tag-sub-err.mp-tag-split-care {
+    border-left: 1px solid rgba(248, 113, 113, 0.34);
   }
   .mp-dark .mp-btn-primary {
     background: #2563eb;
     color: #ffffff !important;
+    border-color: #3b82f6;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  .mp-dark .mp-btn-split .mp-btn-primary {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
   }
   .mp-dark .mp-btn-primary:hover:not(:disabled) {
     background: #3b82f6;
+    border-color: #60a5fa;
   }
-  .mp-dark .mp-tag-type,
-  .mp-dark .mp-tag-sub-btn,
-  .mp-dark .mp-btn-split.mp-btn-split-sub {
-    border-color: rgba(96, 165, 250, 0.34);
+  .mp-dark .mp-btn-secondary {
+    background: #1e293b;
+    color: #f1f5f9;
+    border-color: #475569;
   }
-  .mp-dark .mp-tag-team {
-    background: rgba(99, 102, 241, 0.24);
-    color: #c7d2fe !important;
-    border-color: rgba(129, 140, 248, 0.36);
+  .mp-dark .mp-btn-secondary:hover:not(:disabled) {
+    background: #283548;
+    border-color: #60a5fa;
+    color: #93c5fd;
   }
-  .mp-dark .mp-tag-sub-btn:hover {
-    background: #2563eb;
-    color: #ffffff !important;
-    border-color: #2563eb;
+  .mp-dark .mp-btn-icon {
+    background: #1e293b;
+    color: #cbd5e1;
+    border-color: #475569;
+  }
+  .mp-dark .mp-btn-icon:hover:not(:disabled) {
+    background: #283548;
+    color: #ffffff;
+    border-color: #64748b;
   }
   .mp-inline-bar a.mp-tag,
   a.mp-tag.mp-tag-link {
     text-decoration: none !important;
-  }
-  .mp-inline-bar a.mp-tag-tmdb,
-  a.mp-tag-tmdb {
-    color: var(--mp-text) !important;
-  }
-  .mp-inline-bar a.mp-tag-tmdb:hover,
-  a.mp-tag-tmdb:hover {
-    color: var(--mp-primary) !important;
-  }
-  .mp-inline-bar a.mp-tag-exists,
-  a.mp-tag-exists {
-    color: var(--mp-success) !important;
-  }
-  .mp-inline-bar a.mp-tag-type,
-  a.mp-tag-type {
-    color: var(--mp-primary) !important;
   }
   .mp-svg {
     display: inline-block;
@@ -4302,7 +4689,7 @@ function buildHtml(row, mediaInfo, type, torrentName, torrentDesc, downloadLink,
   let specsGroupHtml = "";
   if (mpShowSpecs) {
     if (safeMeta.edition) specsGroupHtml += renderTag(safeMeta.edition, "mp-tag-spec");
-    if (safeMeta.resource_pix) specsGroupHtml += renderTag(safeMeta.resource_pix, "mp-tag-spec");
+    if (safeMeta.resource_pix) specsGroupHtml += renderTag(safeMeta.resource_pix, "mp-tag-spec mp-tag-pix");
     if (safeMeta.video_encode) specsGroupHtml += renderTag(safeMeta.video_encode, "mp-tag-spec");
     if (safeMeta.audio_encode) specsGroupHtml += renderTag(safeMeta.audio_encode, "mp-tag-spec");
     const releaseTeam = cleanText(safeMeta.resource_team || "") || extractReleaseTeam(torrentName);
